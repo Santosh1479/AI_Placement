@@ -1,26 +1,24 @@
-const express = require("express");
-const router = express.Router();
-const driveController = require("../controllers/drivecontroller");
+const HOD = require("../models/HODmodel");
+const Student = require("../models/Student");
 
-// Create a drive
-router.post("/", driveController.createDrive);
+exports.register = async (data) => {
+    data.password = await HOD.hashPassword(data.password);
+    const hod = new HOD(data);
+    return await hod.save();
+};
 
-// Edit a drive
-router.put("/:id", driveController.editDrive);
+exports.login = async (email, password) => {
+    const hod = await HOD.findOne({ email }).select("+password");
+    if (!hod) throw new Error("Invalid credentials");
+    const isMatch = await hod.comparePassword(password);
+    if (!isMatch) throw new Error("Invalid credentials");
+    return hod;
+};
 
-// Delete a drive
-router.delete("/:id", driveController.deleteDrive);
+exports.approveStudent = async (studentId) => {
+    return await Student.findByIdAndUpdate(studentId, { approval: "approved" }, { new: true });
+};
 
-// Update offer money
-router.put("/:id/offer", driveController.updateOfferMoney);
-
-// Add student to round
-router.post("/:id/round/add", driveController.addStudentToRound);
-
-// Remove student from round
-router.post("/:id/round/remove", driveController.removeStudentFromRound);
-
-// Get drive details
-router.get("/:id", driveController.getDrive);
-
-module.exports = router;
+exports.editStudentProfile = async (studentId, data) => {
+    return await Student.findByIdAndUpdate(studentId, data, { new: true });
+};

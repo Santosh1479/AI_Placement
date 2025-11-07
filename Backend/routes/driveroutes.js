@@ -4,7 +4,9 @@ const driveController = require("../controllers/drivecontroller");
 
 // Create a drive
 router.post("/", driveController.createDrive);
+router.get("/", driveController.getAllDrives);
 
+router.get("/active", driveController.getActiveDrives);
 // Edit a drive
 router.put("/:id", driveController.editDrive);
 

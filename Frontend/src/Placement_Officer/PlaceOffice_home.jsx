@@ -1,18 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
-const demoDrives = [
-  { id: "DRV001", company: "Google", date: "2025-11-10", role: "SWE", required: 10, placed: 7, cgpa: "8.0", skills: "DSA, React", rounds: ["Aptitude", "Technical", "HR"], selected: ["Amit Kumar", "Sneha Patel"], rejected: ["Rahul Verma"] },
-  { id: "DRV002", company: "Amazon", date: "2025-11-15", role: "Cloud Eng", required: 8, placed: 5, cgpa: "7.5", skills: "AWS, Python", rounds: ["Coding", "Managerial"], selected: ["Priya Singh"], rejected: [] },
-];
+const API_URL = "http://localhost:5000/drives"; // Adjust if your route is different
 
 const PlaceOfficeHome = () => {
   const [showCreate, setShowCreate] = useState(false);
   const [showManage, setShowManage] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
-  const [driveData, setDriveData] = useState({ company: "", date: "", role: "", required: "", cgpa: "", skills: "" });
+  const [driveData, setDriveData] = useState({
+    driveId: "",
+    companyName: "",
+    date: "",
+    role: "",
+    numRequired: "",
+    cgpaRequired: "",
+    skillsRequired: "",
+    offerMoney: "", // <-- Add this
+  });
   const [createdId, setCreatedId] = useState("");
-  const [drives, setDrives] = useState(demoDrives);
+  const [drives, setDrives] = useState([]);
   const [detailsId, setDetailsId] = useState("");
   const [detailsDrive, setDetailsDrive] = useState(null);
   const [newRound, setNewRound] = useState("");
@@ -20,55 +27,86 @@ const PlaceOfficeHome = () => {
   const [rejectedName, setRejectedName] = useState("");
   const navigate = useNavigate();
 
-  // Generate a simple Drive ID
-  const generateDriveId = () => "DRV" + Math.floor(100 + Math.random() * 900);
+  // Fetch drives from backend
+  useEffect(() => {
+    axios.get(API_URL)
+      .then(res => setDrives(res.data))
+      .catch(() => setDrives([]));
+  }, []);
 
-  const handleCreateDrive = (e) => {
+  const handleCreateDrive = async (e) => {
     e.preventDefault();
-    const newId = generateDriveId();
-    setDrives([
-      ...drives,
-      { id: newId, ...driveData, placed: 0, rounds: [], selected: [], rejected: [] }
-    ]);
-    setCreatedId(newId);
-    setDriveData({ company: "", date: "", role: "", required: "", cgpa: "", skills: "" });
-  };
-
-  const handleDeleteDrive = (id) => {
-    setDrives(drives.filter((d) => d.id !== id));
-  };
-
-  const handleLoadDetails = () => {
-    const found = drives.find(d => d.id === detailsId);
-    setDetailsDrive(found || null);
-  };
-
-  const handleAddRound = () => {
-    if (newRound && detailsDrive) {
-      const updated = { ...detailsDrive, rounds: [...detailsDrive.rounds, newRound] };
-      setDrives(drives.map(d => d.id === detailsDrive.id ? updated : d));
-      setDetailsDrive(updated);
-      setNewRound("");
+    try {
+      const payload = {
+        _id: driveData.driveId,
+        companyName: driveData.companyName,
+        cgpaRequired: Number(driveData.cgpaRequired),
+        numStudentsSelected: 0,
+        numRequired: Number(driveData.numRequired),
+        skillsRequired: driveData.skillsRequired.split(",").map(s => s.trim()),
+        offerMoney: Number(driveData.offerMoney), // <-- Add this
+        date: driveData.date,
+        role: driveData.role,
+        completed: false,
+        currentRound: "aptitude",
+        appliedUSNs: [], // Initially empty
+        rounds: {
+          aptitude: [],
+          groupDiscussion: [],
+          technicalInterview: [],
+          appointed: [],
+          rejected: []
+        }
+      };
+      const res = await axios.post(API_URL, payload); // <-- FIXED ENDPOINT
+      setDrives([...drives, res.data]);
+      setCreatedId(res.data._id || "Created");
+      setDriveData({
+        driveId: "G1",
+        companyName: "",
+        date: "",
+        role: "",
+        numRequired: "",
+        cgpaRequired: "",
+        skillsRequired: "",
+        offerMoney: "", // <-- Reset this
+      });
+    } catch (err) {
+      alert("Error creating drive");
     }
   };
 
-  const handleAddSelected = () => {
-    if (selectedName && detailsDrive) {
-      const updated = { ...detailsDrive, selected: [...detailsDrive.selected, selectedName] };
-      setDrives(drives.map(d => d.id === detailsDrive.id ? updated : d));
-      setDetailsDrive(updated);
-      setSelectedName("");
+  const handleDeleteDrive = async (id) => {
+    try {
+      await axios.delete(`${API_URL}/${id}`);
+      setDrives(drives.filter((d) => d._id !== id));
+    } catch (err) {
+      alert("Error deleting drive");
     }
   };
 
-  const handleAddRejected = () => {
-    if (rejectedName && detailsDrive) {
-      const updated = { ...detailsDrive, rejected: [...detailsDrive.rejected, rejectedName] };
-      setDrives(drives.map(d => d.id === detailsDrive.id ? updated : d));
-      setDetailsDrive(updated);
-      setRejectedName("");
+  const handleLoadDetails = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/${detailsId}`);
+      setDetailsDrive(res.data);
+    } catch {
+      setDetailsDrive(null);
     }
   };
+
+  const handleShowManage = () => {
+    setShowManage(true);
+    setShowCreate(false);
+    setShowDetails(false);
+    axios.get(API_URL)
+      .then(res => {
+        // Filter drives with completed: false
+        setDrives(res.data.filter(drive => drive.completed === false));
+      })
+      .catch(() => setDrives([]));
+  };
+
+  // The rest of your handlers (handleAddRound, handleAddSelected, handleAddRejected) would need to call backend endpoints as well
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-indigo-100 font-sans flex items-center justify-center">
@@ -103,12 +141,23 @@ const PlaceOfficeHome = () => {
             <h2 className="text-lg font-bold text-indigo-700 mb-4">Create New Drive</h2>
             <form onSubmit={handleCreateDrive} className="space-y-4">
               <div>
+                <label className="block text-gray-700 mb-1">Drive ID</label>
+                <input
+                  type="text"
+                  required
+                  value={driveData.driveId}
+                  onChange={e => setDriveData({ ...driveData, driveId: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                  placeholder="Custom Drive ID"
+                />
+              </div>
+              <div>
                 <label className="block text-gray-700 mb-1">Company</label>
                 <input
                   type="text"
                   required
-                  value={driveData.company}
-                  onChange={e => setDriveData({ ...driveData, company: e.target.value })}
+                  value={driveData.companyName}
+                  onChange={e => setDriveData({ ...driveData, companyName: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                   placeholder="Company Name"
                 />
@@ -140,8 +189,8 @@ const PlaceOfficeHome = () => {
                   type="number"
                   required
                   min="1"
-                  value={driveData.required}
-                  onChange={e => setDriveData({ ...driveData, required: e.target.value })}
+                  value={driveData.numRequired}
+                  onChange={e => setDriveData({ ...driveData, numRequired: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                   placeholder="e.g. 10"
                 />
@@ -154,8 +203,8 @@ const PlaceOfficeHome = () => {
                   min="0"
                   max="10"
                   required
-                  value={driveData.cgpa}
-                  onChange={e => setDriveData({ ...driveData, cgpa: e.target.value })}
+                  value={driveData.cgpaRequired}
+                  onChange={e => setDriveData({ ...driveData, cgpaRequired: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                   placeholder="e.g. 7.5"
                 />
@@ -165,10 +214,21 @@ const PlaceOfficeHome = () => {
                 <input
                   type="text"
                   required
-                  value={driveData.skills}
-                  onChange={e => setDriveData({ ...driveData, skills: e.target.value })}
+                  value={driveData.skillsRequired}
+                  onChange={e => setDriveData({ ...driveData, skillsRequired: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                   placeholder="e.g. DSA, React, AWS"
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 mb-1">Offer Money</label>
+                <input
+                  type="number"
+                  required
+                  value={driveData.offerMoney}
+                  onChange={e => setDriveData({ ...driveData, offerMoney: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                  placeholder="e.g. 1000000"
                 />
               </div>
               <button
@@ -195,36 +255,42 @@ const PlaceOfficeHome = () => {
             ) : (
               <ul className="space-y-4">
                 {drives.map((drive) => (
-                  <li key={drive.id} className="bg-white rounded-lg p-4 shadow flex flex-col gap-2">
+                  <li key={drive._id} className="bg-white rounded-lg p-4 shadow flex flex-col gap-2">
                     <div>
-                      <span className="font-bold text-indigo-700">{drive.company}</span> | {drive.role}
+                      <span className="font-bold text-indigo-700">{drive.companyName}</span> | {drive.role}
                     </div>
                     <div className="text-gray-600 text-sm">Date: {drive.date}</div>
-                    <div className="text-gray-500 text-xs">Drive ID: {drive.id}</div>
+                    <div className="text-gray-500 text-xs">Drive ID: {drive._id}</div>
                     <div className="text-gray-700 text-sm">
-                      Required: <span className="font-semibold">{drive.required}</span>
+                      Required: <span className="font-semibold">{drive.numRequired}</span>
                       {" | "}
-                      Placed: <span className="font-semibold">{drive.placed}</span>
+                      Placed: <span className="font-semibold">{drive.numStudentsSelected}</span>
                       {" | "}
-                      Remaining Seats: <span className="font-semibold">{drive.required - drive.placed}</span>
+                      Remaining Seats: <span className="font-semibold">{drive.numRequired - drive.numStudentsSelected}</span>
                     </div>
                     <div className="text-gray-700 text-sm">
-                      Min CGPA: <span className="font-semibold">{drive.cgpa}</span>
+                      Min CGPA: <span className="font-semibold">{drive.cgpaRequired}</span>
                       {" | "}
-                      Skills: <span className="font-semibold">{drive.skills}</span>
+                      Skills: <span className="font-semibold">{drive.skillsRequired && drive.skillsRequired.join(", ")}</span>
                     </div>
                     <div className="flex gap-2 mt-2">
                       <button
                         className="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700 text-sm"
-                        onClick={() => alert(`Viewing drive ${drive.id}`)}
+                        onClick={() => alert(`Viewing drive ${drive._id}`)}
                       >
                         View
                       </button>
                       <button
                         className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
-                        onClick={() => handleDeleteDrive(drive.id)}
+                        onClick={() => handleDeleteDrive(drive._id)}
                       >
                         Delete
+                      </button>
+                      <button
+                        className="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-700 text-sm"
+                        onClick={() => navigate(`/drives/${drive._id}`)}
+                      >
+                        More
                       </button>
                     </div>
                   </li>
@@ -244,7 +310,7 @@ const PlaceOfficeHome = () => {
                 value={detailsId}
                 onChange={e => setDetailsId(e.target.value)}
                 className="px-3 py-2 border border-gray-300 rounded-lg w-full"
-                placeholder="Enter Drive ID (e.g. DRV001)"
+                placeholder="Enter Drive ID"
               />
               <button
                 className="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition"
@@ -259,83 +325,15 @@ const PlaceOfficeHome = () => {
             {detailsDrive && (
               <div>
                 <div className="mb-2 font-semibold text-green-800">
-                  {detailsDrive.company} | {detailsDrive.role}
+                  {detailsDrive.companyName} | {detailsDrive.role}
                 </div>
                 <div className="text-gray-700 text-sm mb-2">
                   Date: {detailsDrive.date} <br />
-                  Required: {detailsDrive.required} | Placed: {detailsDrive.placed} | Remaining: {detailsDrive.required - detailsDrive.placed}
+                  Required: {detailsDrive.numRequired} | Placed: {detailsDrive.numStudentsSelected} | Remaining: {detailsDrive.numRequired - detailsDrive.numStudentsSelected}
                   <br />
-                  Min CGPA: {detailsDrive.cgpa} | Skills: {detailsDrive.skills}
+                  Min CGPA: {detailsDrive.cgpaRequired} | Skills: {detailsDrive.skillsRequired && detailsDrive.skillsRequired.join(", ")}
                 </div>
-                <div className="mb-4">
-                  <div className="font-semibold text-green-700 mb-1">Recruitment Rounds:</div>
-                  <ul className="list-disc pl-5 mb-2">
-                    {detailsDrive.rounds.map((r, idx) => (
-                      <li key={idx}>{r}</li>
-                    ))}
-                  </ul>
-                  <div className="flex gap-2 mb-2">
-                    <input
-                      type="text"
-                      value={newRound}
-                      onChange={e => setNewRound(e.target.value)}
-                      className="px-2 py-1 border border-gray-300 rounded-lg w-full"
-                      placeholder="Add new round"
-                    />
-                    <button
-                      className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-sm"
-                      onClick={handleAddRound}
-                    >
-                      Add Round
-                    </button>
-                  </div>
-                </div>
-                <div className="mb-4">
-                  <div className="font-semibold text-green-700 mb-1">Selected Students:</div>
-                  <ul className="list-disc pl-5 mb-2">
-                    {detailsDrive.selected.map((s, idx) => (
-                      <li key={idx}>{s}</li>
-                    ))}
-                  </ul>
-                  <div className="flex gap-2 mb-2">
-                    <input
-                      type="text"
-                      value={selectedName}
-                      onChange={e => setSelectedName(e.target.value)}
-                      className="px-2 py-1 border border-gray-300 rounded-lg w-full"
-                      placeholder="Add selected student"
-                    />
-                    <button
-                      className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-sm"
-                      onClick={handleAddSelected}
-                    >
-                      Add Selected
-                    </button>
-                  </div>
-                </div>
-                <div className="mb-4">
-                  <div className="font-semibold text-green-700 mb-1">Rejected Students:</div>
-                  <ul className="list-disc pl-5 mb-2">
-                    {detailsDrive.rejected.map((s, idx) => (
-                      <li key={idx}>{s}</li>
-                    ))}
-                  </ul>
-                  <div className="flex gap-2 mb-2">
-                    <input
-                      type="text"
-                      value={rejectedName}
-                      onChange={e => setRejectedName(e.target.value)}
-                      className="px-2 py-1 border border-gray-300 rounded-lg w-full"
-                      placeholder="Add rejected student"
-                    />
-                    <button
-                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
-                      onClick={handleAddRejected}
-                    >
-                      Add Rejected
-                    </button>
-                  </div>
-                </div>
+                {/* Add rounds, selected, rejected logic here as needed */}
               </div>
             )}
           </div>

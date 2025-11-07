@@ -4,11 +4,11 @@ import Index from './Index';
 import Login from './Login';
 import Register from './Register';
 import StudentHome from './Student/home';
-import PlaceOfficeHome from './Placement_Officer/PlaceOffice_home'; // Import the PlaceOfficeHome component
-import HOD_Profile from './Head_of_Department/hod_profile'; // Import the HOD_Profile component
+import PlaceOfficeHome from './Placement_Officer/PlaceOffice_home';
+import HOD_Profile from './Head_of_Department/hod_profile';
+import DriveEdits from './Placement_Officer/DriveEdits';
 import './App.css';
 
-// Authentication check
 const isAuthenticated = () => {
   const token = localStorage.getItem('token');
   return token !== null;
@@ -18,53 +18,27 @@ const getRole = () => {
   return localStorage.getItem('role');
 };
 
-const App = () => {
-  const routes = [
-    {
-      path: '/',
-      element: isAuthenticated() ? (
-        getRole() === 'Student' ? (
-          <Navigate to="/student/home" />
-        ) : getRole() === 'Admin' ? (
-          <Navigate to="/admin/home" />
-        ) : (
-          <Navigate to="/hod/home" />
-        )
-      ) : (
-        <Index />
-      ),
-    },
-    {
-      path: '/login',
-      element: !isAuthenticated() ? <Login /> : <Navigate to="/" />,
-    },
-    {
-      path: '/register',
-      element: !isAuthenticated() ? <Register /> : <Navigate to="/" />,
-    },
-    {
-      path: '/student/home',
-      element: isAuthenticated() && getRole() === 'Student' ? <StudentHome /> : <Navigate to="/login" />,
-    },
-    {
-      path: '/admin/home',
-      element: isAuthenticated() && getRole() === 'Admin' ? <PlaceOfficeHome /> : <Navigate to="/login" />,
-    },
-    {
-      path: '/hod/home',
-      element: isAuthenticated() && getRole() === 'HOD' ? <HOD_Profile /> : <Navigate to="/login" />,
-    },
-  ];
-
-  return (
-    <Router>
-      <Routes>
-        {routes.map((route, index) => (
-          <Route key={index} path={route.path} element={route.element} />
-        ))}
-      </Routes>
-    </Router>
-  );
+// Redirect component for "/"
+const HomeRedirect = () => {
+  if (!isAuthenticated()) return <Index />;
+  if (getRole() === 'Student') return <Navigate to="/student/home" />;
+  if (getRole() === 'Admin') return <Navigate to="/admin/home" />;
+  return <Navigate to="/hod/home" />;
 };
+
+const App = () => (
+  <Router>
+    <Routes>
+      <Route path="/" element={<HomeRedirect />} />
+      <Route path="/login" element={!isAuthenticated() ? <Login /> : <Navigate to="/" />} />
+      <Route path="/register" element={!isAuthenticated() ? <Register /> : <Navigate to="/" />} />
+      <Route path="/student/home" element={isAuthenticated() && getRole() === 'Student' ? <StudentHome /> : <Navigate to="/login" />} />
+      {/* <Route path="/admin/home" element={isAuthenticated() && getRole() === 'Admin' ? <PlaceOfficeHome /> : <Navigate to="/login" />} /> */}
+      <Route path="/hod/home" element={isAuthenticated() && getRole() === 'HOD' ? <HOD_Profile /> : <Navigate to="/login" />} />
+      <Route path="/admin" element={<PlaceOfficeHome/>}/> 
+      <Route path="/drives/:id" element={<DriveEdits />} />
+    </Routes>
+  </Router>
+);
 
 export default App;

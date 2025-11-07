@@ -1,0 +1,33 @@
+{
+  "name": "Student Name",
+  "usn": "STU123",
+  "email": "student@example.com",
+  "password": "yourpassword",
+  "department": "CSE",
+  "skills": ["Java", "Python"]
+}
+{
+  "email": "student@example.com",
+  "password": "yourpassword"
+}
+
+{
+  "name": "HOD Name",
+  "email": "hod@example.com",
+  "password": "yourpassword",
+  "department": "CSE"
+}
+{
+  "email": "hod@example.com",
+  "password": "yourpassword"
+}
+
+{
+  "name": "Officer Name",
+  "email": "officer@example.com",
+  "password": "yourpassword"
+}
+{
+  "email": "officer@example.com",
+  "password": "yourpassword"
+}

@@ -1,4 +1,5 @@
 const driveService = require("../services/driveservices");
+const Drive = require("../models/Drivemodel");
 
 exports.createDrive = async (req, res) => {
     try {
@@ -11,7 +12,7 @@ exports.createDrive = async (req, res) => {
 
 exports.editDrive = async (req, res) => {
     try {
-        const drive = await driveService.editDrive(req.params.id, req.body);
+        const drive = await Drive.findByIdAndUpdate(req.params.id, req.body, { new: true });
         res.json(drive);
     } catch (err) {
         res.status(400).json({ error: err.message });
@@ -22,6 +23,24 @@ exports.deleteDrive = async (req, res) => {
     try {
         await driveService.deleteDrive(req.params.id);
         res.json({ message: "Drive deleted" });
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+};
+
+exports.getAllDrives = async (req, res) => {
+    try {
+        const drives = await Drive.find();
+        res.json(drives);
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+};
+
+exports.getActiveDrives = async (req, res) => {
+    try {
+        const drives = await Drive.find({ completed: false });
+        res.json(drives);
     } catch (err) {
         res.status(400).json({ error: err.message });
     }
