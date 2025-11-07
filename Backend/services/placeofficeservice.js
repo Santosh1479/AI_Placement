@@ -1,5 +1,6 @@
 const Drive = require("../models/Drivemodel");
 const nodemailer = require("nodemailer");
+const PlacementOfficer = require("../models/PlaceOfficer");
 
 exports.createDrive = async (data) => {
     const drive = new Drive(data);
@@ -50,4 +51,35 @@ exports.sendOfferLetter = async (to, offerDetails) => {
     const subject = "Offer Letter";
     const text = `Congratulations! You have been selected.\n\nDetails:\n${offerDetails}`;
     return await exports.sendEmail(to, subject, text);
+};
+
+exports.register = async (data) => {
+  // Validate required fields
+  if (!data.name || !data.email || !data.password) {
+    throw new Error("All fields (name, email, password) are required");
+  }
+
+  // Hash the password
+  data.password = await PlacementOfficer.hashPassword(data.password);
+
+  // Create and save the Placement Officer
+  const officer = new PlacementOfficer({
+    name: data.name,
+    email: data.email,
+    password: data.password,
+  });
+
+  return await officer.save();
+};
+
+exports.login = async (email, password) => {
+  // Find the Placement Officer by email and include the password field
+  const officer = await PlacementOfficer.findOne({ email }).select("+password");
+  if (!officer) throw new Error("Invalid credentials");
+
+  // Compare the provided password with the hashed password
+  const isMatch = await officer.comparePassword(password);
+  if (!isMatch) throw new Error("Invalid credentials");
+
+  return officer; // Return the Placement Officer object
 };

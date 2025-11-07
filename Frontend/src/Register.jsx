@@ -8,31 +8,49 @@ const Register = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [usn, setUsn] = useState(''); // For students
+  const [department, setDepartment] = useState(''); // For students and HODs
+  const [skills, setSkills] = useState(''); // For students
   const navigate = useNavigate(); // Hook for navigation
 
   const handleRoleChange = (event) => {
     setRole(event.target.value);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const data = await registerUser(name, email, password, role);
-      alert(`Registration successful! Welcome, ${data.name}.`);
-      
-      // Redirect based on role
-      if (data.role === 'Student') {
-        navigate('/student/home'); // Navigate to Student Home
-      } else if (data.role === 'HOD') {
-        navigate('/hod/home'); // Navigate to HOD Home
-      } else if (data.role === 'Admin') {
-        navigate('/admin/home'); // Navigate to Admin Home
-      }
-    } catch (error) {
-      alert(error.message || 'An error occurred during registration. Please try again.');
-    }
-  };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    // Prepare the data based on the role
+    const data = {
+      name,
+      email,
+      password,
+      ...(role === 'Students' && { usn, department, skills: skills.split(',') }),
+      ...(role === 'hods' && { department }), // Only send department for HOD
+      ...(role === 'PlaceOfficers' && { department }),
+    };
 
+    // Call the registerUser API
+    const response = await registerUser(data.name, data.email, data.password, role, data);
+
+    alert(`Registration successful! Welcome, ${response.name}.`);
+
+    // Store the JWT token and role in localStorage
+    localStorage.setItem('token', response.token);
+    localStorage.setItem('role', role);
+
+    // Redirect based on role
+    if (role === 'Students') {
+      navigate('/students/home'); // Navigate to Students Home
+    } else if (role === 'hods') {
+      navigate('/hods/home'); // Navigate to HOD Home
+    } else if (role === 'PlaceOfficers') {
+      navigate('/placeofficers/home'); // Navigate to Placement Officers Home
+    }
+  } catch (error) {
+    alert(error.message || 'An error occurred during registration. Please try again.');
+  }
+};
   return (
     <div
       className="flex items-center justify-center min-h-screen px-4"
@@ -100,6 +118,80 @@ const Register = () => {
               required
             />
           </div>
+
+          {/* Role-Specific Fields */}
+          {role === 'Student' && (
+            <>
+              <div className="mb-4">
+                <label
+                  className="block text-sm font-medium mb-1"
+                  style={{ color: COLORS.text }}
+                >
+                  USN
+                </label>
+                <input
+                  type="text"
+                  value={usn}
+                  onChange={(e) => setUsn(e.target.value)}
+                  className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter your USN"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label
+                  className="block text-sm font-medium mb-1"
+                  style={{ color: COLORS.text }}
+                >
+                  Department
+                </label>
+                <input
+                  type="text"
+                  value={department}
+                  onChange={(e) => setDepartment(e.target.value)}
+                  className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter your department"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label
+                  className="block text-sm font-medium mb-1"
+                  style={{ color: COLORS.text }}
+                >
+                  Skills (comma-separated)
+                </label>
+                <input
+                  type="text"
+                  value={skills}
+                  onChange={(e) => setSkills(e.target.value)}
+                  className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter your skills"
+                  required
+                />
+              </div>
+            </>
+          )}
+
+          {role === 'hods' && (
+            <div className="mb-4">
+              <label
+                className="block text-sm font-medium mb-1"
+                style={{ color: COLORS.text }}
+              >
+                Department
+              </label>
+              <input
+                type="text"
+                value={department}
+                onChange={(e) => setDepartment(e.target.value)}
+                className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter your department"
+                required
+              />
+            </div>
+          )}
+
           <div className="mb-4">
             <label
               className="block text-sm font-medium mb-1"
@@ -114,8 +206,8 @@ const Register = () => {
               required
             >
               <option value="Student">Student</option>
-              <option value="HOD">HOD</option>
-              <option value="Admin">Admin</option>
+              <option value="hods">HOD</option>
+              <option value="placeofficers">Placement Officer</option>
             </select>
           </div>
           <button

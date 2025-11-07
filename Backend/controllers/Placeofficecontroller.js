@@ -1,4 +1,5 @@
 const placeofficeService = require("../services/placeofficeservice");
+const PlacementOfficer = require("../models/PlaceOfficer");
 
 exports.createDrive = async (req, res) => {
     try {
@@ -52,4 +53,34 @@ exports.sendOfferLetter = async (req, res) => {
     } catch (err) {
         res.status(400).json({ error: err.message });
     }
+};
+
+
+exports.register = async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+
+    // Call the register service
+    const officer = await placeofficeService.register({ name, email, password });
+
+    res.status(201).json({ message: "Placement Officer registered successfully", officer });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+exports.login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Call the login service
+    const officer = await placeofficeService.login(email, password);
+
+    // Generate a JWT token
+    const token = officer.generateAuthToken();
+
+    res.json({ message: "Login successful", token, role: "placeofficers" });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
 };

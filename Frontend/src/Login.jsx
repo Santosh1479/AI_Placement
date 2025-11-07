@@ -4,8 +4,8 @@ import { COLORS } from './constants/colors';
 import { loginUser } from './lib/api';
 
 const Login = () => {
-  const [role, setRole] = useState('Student'); // Default role is Student
-  const [email, setEmail] = useState('test1@gmail.com');
+  const [role, setRole] = useState('Students'); // Default role is Students
+  const [email, setEmail] = useState('test2@gmail.com');
   const [password, setPassword] = useState('test@404');
   const navigate = useNavigate(); // Hook for navigation
 
@@ -17,20 +17,22 @@ const Login = () => {
     e.preventDefault();
 
     try {
+      // Call the loginUser function with email, password, and role
       const data = await loginUser(email, password, role);
-      alert(`Welcome, ${data.name}! You are logged in as ${data.role}.`);
+
+      alert(`Welcome, ${data.name}! You are logged in as ${role}.`);
 
       // Store the JWT token and role in localStorage
       localStorage.setItem('token', data.token);
-      localStorage.setItem('role', data.role);
+      localStorage.setItem('role', role); // Store the selected role in localStorage
 
       // Navigate to the appropriate home page based on role
-      if (data.role === 'Student') {
-        navigate('/student/home'); // Navigate to Student Home
-      } else if (data.role === 'HOD') {
-        navigate('/hod/home'); // Navigate to HOD Home
-      } else if (data.role === 'Admin') {
-        navigate('/admin/home'); // Navigate to Admin Home
+      if (role === 'students') {
+        navigate('/students/home'); // Navigate to Students Home
+      } else if (role === 'hods') {
+        navigate('/hods/home'); // Navigate to HOD Home
+      } else if (role === 'placeofficers') {
+        navigate('/placeofficers/home'); // Navigate to Placement Officers Home
       }
     } catch (error) {
       alert(error.message || 'An error occurred during login. Please try again.');
@@ -103,9 +105,9 @@ const Login = () => {
               className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             >
-              <option value="Student">Student</option>
-              <option value="HOD">HOD</option>
-              <option value="Admin">Admin</option>
+              <option value="students">Students</option>
+              <option value="hods">HOD</option>
+              <option value="placeofficers">Placement Officers</option>
             </select>
           </div>
           <button

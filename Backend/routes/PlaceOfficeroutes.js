@@ -21,4 +21,8 @@ router.post("/email",authPlaceOfficer, placeofficeController.sendEmail);
 // Send offer letter
 router.post("/offerletter",authPlaceOfficer, placeofficeController.sendOfferLetter);
 
+router.post("/register", placeofficeController.register);
+
+router.post("/login", placeofficeController.login);
+
 module.exports = router;
