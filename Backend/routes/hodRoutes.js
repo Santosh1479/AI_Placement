@@ -10,9 +10,9 @@ router.post("/register", hodController.register);
 router.post("/login", hodController.login);
 
 // Approve student signup
-router.put("/approve/:studentId", protect, hodController.approveStudent);
+router.put("/approve/:studentId", hodController.approveStudent);
 
 // Edit student profile
-router.put("/student/:studentId", protect, hodController.editStudentProfile);
+router.put("/student/:studentId", hodController.editStudentProfile);
 
 module.exports = router;

@@ -35,3 +35,21 @@ exports.getProfile = async (req, res) => {
         res.status(400).json({ error: err.message });
     }
 };
+
+exports.updateProfile = async (req, res) => {
+    try {
+        const updated = await Student.findByIdAndUpdate(req.user._id, req.body, { new: true });
+        res.json(updated);
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+};
+
+exports.getAllStudents = async (req, res) => {
+    try {
+        const students = await Student.find();
+        res.json(students);
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+};

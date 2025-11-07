@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const studentController = require("../controllers/studentcontroller");
-const auth = require("../middleware/auth");
+const { authStudent } = require("../middleware/authMiddleware");
 
 // Register a new student
 router.post("/register", studentController.register);
@@ -10,12 +10,12 @@ router.post("/register", studentController.register);
 router.post("/login", studentController.login);
 
 // Get logged-in student's profile
-router.get("/profile", auth, studentController.getProfile);
+router.get("/profile", studentController.getProfile);
 
 // Update student's profile (example, you need to implement in controller)
-router.put("/profile", auth, studentController.updateProfile);
+router.put("/profile", studentController.updateProfile);
 
 // Get all students (example, you need to implement in controller)
-router.get("/", auth, studentController.getAllStudents);
+router.get("/",  studentController.getAllStudents);
 
 module.exports = router;
