@@ -46,6 +46,7 @@ const Register = () => {
         response?.student?.name ||
         name ||
         email;
+      localStorage.setItem('name', displayName);
 
       alert(`Registration successful! Welcome, ${displayName}.`);
 
@@ -59,7 +60,6 @@ const Register = () => {
       } else {
         navigate('/');
       }
-      window.location.href = target;
     } catch (error) {
       alert(error.message || 'An error occurred during registration. Please try again.');
     }

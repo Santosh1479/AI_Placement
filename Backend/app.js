@@ -5,6 +5,7 @@ const studentroutes = require('./routes/studentRoutes');
 const hodRoutes = require('./routes/hodRoutes');
 const placeOfficeroutes = require('./routes/PlaceOfficeroutes');
 const driveroutes = require('./routes/driveroutes');
+const notificationRoutes = require('./routes/notificationsRoutes');
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use('/students',studentroutes);
 app.use('/hods',hodRoutes);
 app.use('/placeofficers',placeOfficeroutes);
 app.use('/drives',driveroutes);
+app.use('/notifications', notificationRoutes);
 
 
 

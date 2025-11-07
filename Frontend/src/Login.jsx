@@ -31,6 +31,8 @@ const Login = () => {
         data?.student?.name ||
         email;
 
+      // store name for use in Topbar / Notification page
+      localStorage.setItem('name', displayName);
       alert(`Welcome, ${displayName}! You are logged in as ${role}.`);
 
       // Determine destination based on role

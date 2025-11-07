@@ -73,9 +73,7 @@ const home = () => {
       {/* Top bar with profile */}
       <Topbar
         name={personal.name}
-        avatarUrl={`https://ui-avatars.com/api/?name=${
-          personal.name || "User"
-        }`}
+        avatarUrl={`https://avatar.iran.liara.run/public/44`}
         onLogout={() => {
           localStorage.removeItem("token");
           localStorage.removeItem("role");

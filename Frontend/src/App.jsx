@@ -8,6 +8,8 @@ import PlaceOfficeHome from './Placement_Officer/PlaceOffice_home';
 import HOD_Profile from './Head_of_Department/hod_profile';
 import './App.css';
 import DriveEdits from './Placement_Officer/DriveEdits';
+import { elements } from 'chart.js';
+import Notification from './Student/Notification';
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -60,6 +62,10 @@ const App = () => {
       path: '/drives/:id',
       element: isAuthenticated && role === 'placeofficers' ? <DriveEdits /> : <Navigate to="/login" />,
     },
+    {
+      path:'/students/notifications',
+      element: isAuthenticated && role === 'students' ? <Notification /> : <Navigate to="/login" />,
+    }
   ];
 
   return (
