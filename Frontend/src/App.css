@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles can be added below this line */
+
+body {
+  @apply bg-white text-black;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  @apply font-bold;
+}
+
+button {
+  @apply px-4 py-2 rounded;
+}
+
+.card {
+  @apply bg-white shadow-md rounded-lg p-4;
+}
+
+.text-primary {
+  @apply text-blue-600; /* Example for primary text color */
+}
+
+.text-secondary {
+  @apply text-gray-600; /* Example for secondary text color */
+}
