@@ -1,42 +1,76 @@
+const mongoose = require('mongoose');
 const Notification = require("../models/Notifications");
 const Student = require("../models/Student");
 const { sendEmail } = require("../utils/emailService");
 
-// Create a new notification and send email (save always; email best-effort)
 exports.createNotification = async (notificationData) => {
-  // persist first so DB always has record even if email fails
-  const notification = new Notification(notificationData);
-  await notification.save();
-
   try {
-    // attempt to resolve student email and send
-    const student = await Student.findOne({ usn: notificationData.usn });
-    if (student && student.email) {
-      const emailSubject = notificationData.title;
-      const emailText = notificationData.message;
-      const emailHtml = `
-        <div style="font-family: Arial, sans-serif; padding: 20px;">
-          <h2 style="color: #4F46E5;">${notificationData.title}</h2>
-          <p>${notificationData.message}</p>
-          ${notificationData.round ? `<p><strong>Round:</strong> ${notificationData.round}</p>` : ""}
-          <hr>
-          <p style="color: #666; font-size: 12px;">
-            This is an automated message from the Placement Portal. Please do not reply to this email.
-          </p>
-        </div>
-      `;
-      await sendEmail(student.email, emailSubject, emailText, emailHtml);
-      // email succeeded
-    } else {
-      console.warn(`No email found for USN ${notificationData.usn}`);
-    }
-  } catch (err) {
-    // log but do NOT fail the operation — notifications are persisted
-    console.error("Email send failed for notification:", err.message || err);
-  }
+    // console.log("[notifications] Creating notification:", notificationData);
 
-  return notification;
+    // Fetch student details using USN
+    const student = await Student.findOne({ usn: notificationData.usn }).select("email name usn");
+    if (!student || !student.email) {
+      // console.warn(`[notifications] Student not found or no email for USN ${notificationData.usn}`);
+      throw new Error(`Student not found or no email for USN ${notificationData.usn}`);
+    }
+
+    // Create and save the notification
+    const notification = new Notification(notificationData);
+    const saved = await notification.save();
+
+    // console.log("[notifications] Notification saved to DB:", {
+    //   id: saved._id,
+    //   usn: saved.usn,
+    //   type: saved.type
+    // });
+
+    // Send email to the student
+    // console.log(`[notifications] Triggering email service for student:`, {
+    //   usn: student.usn,
+    //   email: student.email
+    // });
+
+    const emailHtml = `
+      <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #4F46E5;">${saved.title}</h2>
+        <p style="color: #374151; font-size: 16px; line-height: 1.5;">${saved.message}</p>
+        ${saved.round ? `<p style="color: #374151;"><strong>Round:</strong> ${saved.round}</p>` : ''}
+        <hr style="border: 1px solid #E5E7EB; margin: 20px 0;">
+        <p style="color: #6B7280; font-size: 14px;">
+          This is an automated message from the Placement Portal. Please do not reply to this email.
+        </p>
+      </div>
+    `;
+
+    await sendEmail(
+      student.email,
+      saved.title,
+      saved.message,
+      emailHtml
+    );
+
+    // console.log(`[notifications] Email service triggered and sent to ${student.email}`);
+    return saved;
+
+  } catch (err) {
+    // console.error("[notifications] Error in createNotification:", err);
+    throw err;
+  }
 };
+
+// Add this helper function at the top of the file
+const createNotificationSafely = async (notificationData) => {
+  try {
+    const notification = await exports.createNotification(notificationData);
+    return { success: true, notification };
+  } catch (error) {
+    console.error('[notifications] Failed to create notification:', error);
+    return { success: false, error };
+  }
+};
+
+// Add this to exports
+exports.createNotificationSafely = createNotificationSafely;
 
 // Get notifications for a specific student (USN)
 exports.getStudentNotifications = async (usn) => {

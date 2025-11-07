@@ -7,8 +7,8 @@ router.post("/", driveController.createDrive);
 router.get("/", driveController.getAllDrives);
 
 router.get("/active", driveController.getActiveDrives);
-// Edit a drive
-router.put("/:id", driveController.editDrive);
+// Edit a drive -> use PATCH so PUT is reserved for advancing rounds (which triggers notifications)
+router.patch("/:id", driveController.editDrive);
 
 // Delete a drive
 router.delete("/:id", driveController.deleteDrive);
@@ -25,5 +25,8 @@ router.post("/:id/round/remove", driveController.removeStudentFromRound);
 
 // Get drive details
 router.get("/:id", driveController.getDrive);
+
+// Advance/update drive (this is the PUT that creates notifications/emails)
+router.put("/:id", driveController.updateDrive);
 
 module.exports = router;

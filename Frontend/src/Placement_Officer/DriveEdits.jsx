@@ -25,8 +25,9 @@ const DriveEdits = () => {
   const [showSelection, setShowSelection] = useState(false);
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
     axios
-      .get(`${API_URL}/${id}`)
+      .get(`${API_URL}/${id}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
       .then((res) => setDrive(res.data))
       .catch(() => setDrive(null));
   }, [id]);
@@ -61,18 +62,18 @@ const DriveEdits = () => {
 
       // Only show students who are not already rejected
       const availableUSNs = drive.appliedUSNs.filter(
-        usn => !(drive.rounds.rejected || []).includes(usn)
+        (usn) => !(drive.rounds.rejected || []).includes(usn)
       );
 
       // Students NOT selected (not green-ticked) are rejected
       const actuallyRejectedUSNs = availableUSNs.filter(
-        usn => !selectedUSNs.includes(usn)
+        (usn) => !selectedUSNs.includes(usn)
       );
 
       // Prevent repetition in rejected array
       const newRejected = [
         ...drive.rounds.rejected,
-        ...actuallyRejectedUSNs.filter(usn => !drive.rounds.rejected.includes(usn))
+        ...actuallyRejectedUSNs.filter((usn) => !drive.rounds.rejected.includes(usn)),
       ];
 
       let updatePayload = {
@@ -81,6 +82,8 @@ const DriveEdits = () => {
           rejected: newRejected,
         },
         currentRound: nextRound,
+        selectedUSNs, // Include selected USNs in the payload
+        rejectedUSNs: newRejected, // Include rejected USNs in the payload
       };
 
       if (isLastBeforeAppointed) {
@@ -94,18 +97,38 @@ const DriveEdits = () => {
         updatePayload.rounds[currentRound] = selectedUSNs;
       }
 
-      await axios.put(`${API_URL}/${id}`, updatePayload);
+      const token = localStorage.getItem("token");
+
+      // Log the payload being sent to the backend
+      console.log("Sending update payload to backend:", updatePayload);
+
+      const response = await axios.put(`${API_URL}/${id}`, updatePayload, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+
+      // Log the response from the backend
+      console.log("Response from backend:", response.data);
 
       setShowSelection(false);
       setSelectedUSNs([]);
       setRejectedUSNs([]);
-      // Refetch drive
-      const res = await axios.get(`${API_URL}/${id}`);
+
+      // Refetch drive (include token)
+      const res = await axios.get(`${API_URL}/${id}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+
+      // Log the updated drive data
+      console.log("Updated drive data:", res.data);
+
       setDrive(res.data);
     } catch (err) {
+      // Log any errors encountered
+      console.error("Error updating round:", err);
       alert("Error updating round");
     }
   };
+
 
   // Only show students who are in appliedUSNs and NOT in rounds.rejected
   const selectableUSNs = drive.appliedUSNs.filter(

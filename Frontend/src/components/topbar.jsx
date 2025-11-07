@@ -18,22 +18,18 @@ const Topbar = ({ name, avatarUrl, children }) => {
   );
 
   useEffect(() => {
-    // update when other tabs change localStorage
     const onStorage = () =>
       setUnreadCount(Number(localStorage.getItem("unreadNotifications") || 0));
     window.addEventListener("storage", onStorage);
-
-    // update when Notification page dispatches custom event in same tab
     const onCustom = (e) => setUnreadCount(Number(e?.detail ?? (localStorage.getItem("unreadNotifications") || 0)));
     window.addEventListener("unreadCountChanged", onCustom);
-
     return () => {
       window.removeEventListener("storage", onStorage);
       window.removeEventListener("unreadCountChanged", onCustom);
     };
   }, []);
 
-  // Logout logic: clear auth and redirect to /login
+  // Logout logic: clear auth, notify app, then navigate immediately to /login
   const handleLogout = () => {
     try {
       localStorage.removeItem("token");
@@ -43,13 +39,16 @@ const Topbar = ({ name, avatarUrl, children }) => {
     } catch (err) {
       // ignore
     }
-    navigate("/login", { replace: true });
-    // Reload the whole page
+
+    // notify other components in same tab
+    window.dispatchEvent(new Event("app-logout"));
+
+    // force immediate navigation and full reload to ensure app clears protected state
+    window.location.replace("/login");
   };
 
   const goToNotifications = () => {
     const role = (localStorage.getItem("role") || "students").toLowerCase();
-    // choose route per role; default to students notifications
     const path =
       role === "students"
         ? "/students/notifications"
@@ -92,9 +91,7 @@ const Topbar = ({ name, avatarUrl, children }) => {
 
           {/* optional badge dot if unread count exists in localStorage */}
           {unreadCount > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center w-3.5 h-3.5 rounded-full bg-red-500 ring-2 ring-white text-[10px] text-white">
-              {/* small dot; show count if you prefer: {unreadCount} */}
-            </span>
+            <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center w-3.5 h-3.5 rounded-full bg-red-500 ring-2 ring-white text-[10px] text-white" />
           )}
         </button>
 
