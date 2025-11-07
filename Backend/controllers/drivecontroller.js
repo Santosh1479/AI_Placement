@@ -1,5 +1,6 @@
 const driveService = require("../services/driveservices");
 const Drive = require("../models/Drivemodel");
+const Student = require("../models/Student");
 
 exports.createDrive = async (req, res) => {
     try {
@@ -23,6 +24,33 @@ exports.deleteDrive = async (req, res) => {
     try {
         await driveService.deleteDrive(req.params.id);
         res.json({ message: "Drive deleted" });
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+};
+
+exports.enrollStudent = async (req, res) => {
+    try {
+        const { usn } = req.body;
+        if (!usn) return res.status(400).json({ error: "USN required" });
+
+        // Add USN to appliedUSNs only if not already present
+        const drive = await Drive.findByIdAndUpdate(
+            req.params.id,
+            { $addToSet: { appliedUSNs: usn } },
+            { new: true }
+        );
+        if (!drive) return res.status(404).json({ error: "Drive not found" });
+
+        // Also add drive to student's drivesEnrolled if not already present
+        const student = await Student.findOneAndUpdate(
+            { usn },
+            { $addToSet: { drivesEnrolled: { drive: drive._id, status: "aptitude" } } },
+            { new: true }
+        );
+        if (!student) return res.status(404).json({ error: "Student not found" });
+
+        res.json({ message: "Enrolled successfully", drive, student });
     } catch (err) {
         res.status(400).json({ error: err.message });
     }

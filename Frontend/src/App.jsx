@@ -7,6 +7,7 @@ import StudentHome from './Student/home';
 import PlaceOfficeHome from './Placement_Officer/PlaceOffice_home';
 import HOD_Profile from './Head_of_Department/hod_profile';
 import './App.css';
+import DriveEdits from './Placement_Officer/DriveEdits';
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -54,6 +55,10 @@ const App = () => {
     {
       path: '/hods/home',
       element: isAuthenticated && role === 'hods' ? <HOD_Profile /> : <Navigate to="/login" />,
+    },
+    {
+      path: '/drives/:id',
+      element: isAuthenticated && role === 'placeofficers' ? <DriveEdits /> : <Navigate to="/login" />,
     },
   ];
 

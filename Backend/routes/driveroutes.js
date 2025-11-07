@@ -12,6 +12,7 @@ router.put("/:id", driveController.editDrive);
 
 // Delete a drive
 router.delete("/:id", driveController.deleteDrive);
+router.post("/:id/enroll", driveController.enrollStudent);
 
 // Update offer money
 router.put("/:id/offer", driveController.updateOfferMoney);
