@@ -20,7 +20,11 @@ const Login = () => {
       const data = await loginUser(email, password, role);
       alert(`Welcome, ${data.name}! You are logged in as ${data.role}.`);
 
-      // Redirect based on role
+      // Store the JWT token and role in localStorage
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('role', data.role);
+
+      // Navigate to the appropriate home page based on role
       if (data.role === 'Student') {
         navigate('/student/home'); // Navigate to Student Home
       } else if (data.role === 'HOD') {
@@ -29,7 +33,7 @@ const Login = () => {
         navigate('/admin/home'); // Navigate to Admin Home
       }
     } catch (error) {
-      alert(error.message);
+      alert(error.message || 'An error occurred during login. Please try again.');
     }
   };
 
