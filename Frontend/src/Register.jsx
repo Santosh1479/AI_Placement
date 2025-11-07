@@ -4,7 +4,7 @@ import { COLORS } from './constants/colors';
 import { registerUser } from './lib/api';
 
 const Register = () => {
-  const [role, setRole] = useState('Student'); // Default role is Student
+  const [role, setRole] = useState('students'); // Change default role to lowercase 'students'
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -17,40 +17,54 @@ const Register = () => {
     setRole(event.target.value);
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    // Prepare the data based on the role
-    const data = {
-      name,
-      email,
-      password,
-      ...(role === 'Students' && { usn, department, skills: skills.split(',') }),
-      ...(role === 'hods' && { department }), // Only send department for HOD
-      ...(role === 'PlaceOfficers' && { department }),
-    };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      // Prepare the data based on the role
+      const data = {
+        name,
+        email,
+        password,
+        ...(role === 'students' && { usn, department, skills: skills.split(',') }),
+        ...(role === 'hods' && { department }),
+        ...(role === 'placeofficers' && {}), // Placement officers don't need additional data
+      };
 
-    // Call the registerUser API
-    const response = await registerUser(data.name, data.email, data.password, role, data);
+      // Call the registerUser API
+      const response = await registerUser(data.name, data.email, data.password, role, data);
 
-    alert(`Registration successful! Welcome, ${response.name}.`);
+      // store token/role if present
+      if (response?.token) localStorage.setItem('token', response.token);
+      localStorage.setItem('role', role);
 
-    // Store the JWT token and role in localStorage
-    localStorage.setItem('token', response.token);
-    localStorage.setItem('role', role);
+      // derive a display name from possible response shapes, fallback to submitted name or email
+      const displayName =
+        response?.name ||
+        response?.user?.name ||
+        response?.hod?.name ||
+        response?.officer?.name ||
+        response?.student?.name ||
+        name ||
+        email;
 
-    // Redirect based on role
-    if (role === 'Students') {
-      navigate('/students/home'); // Navigate to Students Home
-    } else if (role === 'hods') {
-      navigate('/hods/home'); // Navigate to HOD Home
-    } else if (role === 'PlaceOfficers') {
-      navigate('/placeofficers/home'); // Navigate to Placement Officers Home
+      alert(`Registration successful! Welcome, ${displayName}.`);
+
+      // Redirect based on role using react-router navigate
+      if (role === 'students') {
+        navigate('/students/home');
+      } else if (role === 'hods') {
+        navigate('/hods/home');
+      } else if (role === 'placeofficers') {
+        navigate('/placeofficers/home');
+      } else {
+        navigate('/');
+      }
+      window.location.href = target;
+    } catch (error) {
+      alert(error.message || 'An error occurred during registration. Please try again.');
     }
-  } catch (error) {
-    alert(error.message || 'An error occurred during registration. Please try again.');
-  }
-};
+  };
+
   return (
     <div
       className="flex items-center justify-center min-h-screen px-4"
@@ -120,7 +134,7 @@ const handleSubmit = async (e) => {
           </div>
 
           {/* Role-Specific Fields */}
-          {role === 'Student' && (
+          {role === 'students' && (
             <>
               <div className="mb-4">
                 <label
@@ -205,7 +219,7 @@ const handleSubmit = async (e) => {
               className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             >
-              <option value="Student">Student</option>
+              <option value="students">Student</option>
               <option value="hods">HOD</option>
               <option value="placeofficers">Placement Officer</option>
             </select>

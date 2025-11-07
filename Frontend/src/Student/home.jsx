@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Topbar from "../components/topbar";
 
 // Demo drives data
 const demoDrives = [
@@ -41,14 +42,18 @@ const home = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-indigo-100 font-sans">
       {/* Top bar with profile */}
-      <div className="flex justify-end items-center gap-4 px-12 py-6 bg-indigo-600 rounded-b-3xl">
-        <span className="text-white font-bold text-lg">{personal.name}</span>
-        <img
-          src="https://ui-avatars.com/api/?name=User"
-          alt="Profile"
-          className="w-12 h-12 rounded-full border-2 border-white shadow"
-        />
-      </div>
+      <Topbar
+           name={personal.name}
+        avatarUrl={`https://avatar.iran.liara.run/public/44`}
+       
+        onLogout={() => {
+          localStorage.removeItem("token");
+          localStorage.removeItem("role");
+          window.location.href = "/login";
+        }}
+      >
+    
+      </Topbar>
 
       {/* Main content card */}
       <div className="max-w-xl mx-auto bg-white rounded-2xl shadow-lg p-8 mt-8">

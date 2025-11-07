@@ -37,32 +37,26 @@ export const registerUser = async (name, email, password, role, additionalData =
   try {
     console.log('Sending registration request to backend:', { name, email, password, role, additionalData });
 
-    // Construct the endpoint dynamically based on the role
-    const endpoint =
-      role.toLowerCase() === 'students'
-        ? `${API_BASE_URL}/students/register`
-        : role.toLowerCase() === 'placeofficers'
-        ? `${API_BASE_URL}/placeofficers/register`
-        : role.toLowerCase() === 'hods'
-        ? `${API_BASE_URL}/hods/register`
-        : `${API_BASE_URL}/register`;
+    // Ensure role is lowercase for consistency
+    const normalizedRole = role.toLowerCase();
+    
+    // Construct the endpoint
+    const endpoint = `${API_BASE_URL}/${normalizedRole}/register`;
 
-    // Dynamically adjust the payload based on the role
+    // Construct payload based on role
     const payload = {
       name,
       email,
       password,
-      ...(role.toLowerCase() === 'students' && {
+      ...(normalizedRole === 'students' && {
         usn: additionalData.usn,
         department: additionalData.department,
         skills: additionalData.skills,
       }),
-      ...(role.toLowerCase() === 'placeofficers' && {
-        department: additionalData.department, // Only send department for Placement Officers
+      ...(normalizedRole === 'hods' && {
+        department: additionalData.department,
       }),
-      ...(role.toLowerCase() === 'hods' && {
-        department: additionalData.department, // Only send department for HOD
-      }),
+      // Placement officers only need basic info
     };
 
     const response = await fetch(endpoint, {
@@ -79,7 +73,7 @@ export const registerUser = async (name, email, password, role, additionalData =
       throw new Error(data.message || 'Failed to register');
     }
 
-    return data; // Return the user data on success
+    return data;
   } catch (error) {
     throw new Error(error.message || 'An error occurred during registration');
   }

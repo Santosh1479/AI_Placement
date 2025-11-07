@@ -4,7 +4,7 @@ import { COLORS } from './constants/colors';
 import { loginUser } from './lib/api';
 
 const Login = () => {
-  const [role, setRole] = useState('Students'); // Default role is Students
+  const [role, setRole] = useState('students'); // default lowercase to match endpoints
   const [email, setEmail] = useState('test2@gmail.com');
   const [password, setPassword] = useState('test@404');
   const navigate = useNavigate(); // Hook for navigation
@@ -17,23 +17,29 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      // Call the loginUser function with email, password, and role
       const data = await loginUser(email, password, role);
 
-      alert(`Welcome, ${data.name}! You are logged in as ${role}.`);
+      // store token/role if present
+      if (data?.token) localStorage.setItem('token', data.token);
+      localStorage.setItem('role', role || data?.role);
 
-      // Store the JWT token and role in localStorage
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('role', role); // Store the selected role in localStorage
+      // derive a display name from different possible response shapes, fallback to email
+      const displayName =
+        data?.name ||
+        data?.user?.name ||
+        data?.officer?.name ||
+        data?.student?.name ||
+        email;
 
-      // Navigate to the appropriate home page based on role
-      if (role === 'students') {
-        navigate('/students/home'); // Navigate to Students Home
-      } else if (role === 'hods') {
-        navigate('/hods/home'); // Navigate to HOD Home
-      } else if (role === 'placeofficers') {
-        navigate('/placeofficers/home'); // Navigate to Placement Officers Home
-      }
+      alert(`Welcome, ${displayName}! You are logged in as ${role}.`);
+
+      // Determine destination based on role
+      let target = '/';
+      if (role === 'students') target = '/students/home';
+      else if (role === 'hods') target = '/hods/home';
+      else if (role === 'placeofficers') target = '/placeofficers/home';
+
+      window.location.href = target;
     } catch (error) {
       alert(error.message || 'An error occurred during login. Please try again.');
     }

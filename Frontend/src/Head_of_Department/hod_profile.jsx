@@ -1,4 +1,5 @@
 import React from "react";
+import Topbar from "../components/topbar";
 import { Bar, Pie } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -65,8 +66,18 @@ const pieData = {
 };
 
 const HOD_Profile = () => {
+  const displayName = localStorage.getItem("name") || "HOD";
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-indigo-100 font-sans">
+      {/* Topbar: logout handled inside Topbar now */}
+      <Topbar
+        name={displayName}
+        avatarUrl={`https://avatar.iran.liara.run/public/44`}
+      >
+        
+      </Topbar>
+
       <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-8 mt-8">
         <h1 className="text-2xl font-bold text-indigo-700 mb-6">
           Department Placement Statistics

@@ -31,3 +31,7 @@
   "email": "officer@example.com",
   "password": "yourpassword"
 }
+
+https://ui-avatars.com/api/?name=${encodeURIComponent(
+      displayName
+    )}&background=6366f1&color=fff
