@@ -40,7 +40,15 @@ const studentSchema = new mongoose.Schema({
             enum: ["aptitude", "gd", "interview", "selected", "rejected"],
             default: "aptitude"
         }
-    }]
+    }],
+    placed: {
+        type: Boolean,
+        default: false
+    },
+    lpa: {
+        type: Number,
+        default: 0
+    }
 });
 
 studentSchema.methods.generateAuthToken = function () {

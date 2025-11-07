@@ -8,8 +8,9 @@ import PlaceOfficeHome from './Placement_Officer/PlaceOffice_home';
 import HOD_Profile from './Head_of_Department/hod_profile';
 import './App.css';
 import DriveEdits from './Placement_Officer/DriveEdits';
-import { elements } from 'chart.js';
-import Notification from './Student/Notification';
+import Notification from './Student/Notification'; // Add this import
+import ApproveSignup from './Head_of_Department/approve_signup'; // Add this import
+import StudProfEdit from './Head_of_Department/stud_prof_edit'; // Add this import
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -63,8 +64,16 @@ const App = () => {
       element: isAuthenticated && role === 'placeofficers' ? <DriveEdits /> : <Navigate to="/login" />,
     },
     {
-      path:'/students/notifications',
+      path: '/students/notifications',
       element: isAuthenticated && role === 'students' ? <Notification /> : <Navigate to="/login" />,
+    },
+    {
+      path: '/hod/approve-signup',
+      element: isAuthenticated && role === 'hods' ? <ApproveSignup /> : <Navigate to="/login" />,
+    },
+    {
+      path: '/hod/edit-student',
+      element: isAuthenticated && role === 'hods' ? <StudProfEdit /> : <Navigate to="/login" />,
     }
   ];
 

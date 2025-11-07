@@ -1,37 +1,52 @@
 import React, { useState } from "react";
-
-// Demo student data
-const demoStudents = {
-  "1AI20CS001": { name: "Amit Kumar", branch: "CSE", email: "amit@example.com" },
-  "1AI20EC002": { name: "Priya Singh", branch: "ECE", email: "priya@example.com" },
-  "1AI20ME003": { name: "Rahul Verma", branch: "MECH", email: "rahul@example.com" },
-};
+import axios from "axios";
 
 const StudProfEdit = () => {
   const [usn, setUsn] = useState("");
   const [student, setStudent] = useState(null);
-  const [editData, setEditData] = useState({ name: "", branch: "", email: "" });
+  const [editData, setEditData] = useState({ name: "", department: "", email: "", placed: false, lpa: 0 });
   const [error, setError] = useState("");
 
-  const handleSearch = () => {
-    if (demoStudents[usn]) {
-      setStudent(demoStudents[usn]);
-      setEditData(demoStudents[usn]);
-      setError("");
-    } else {
+  const handleSearch = async () => {
+    try {
+      const res = await axios.get(`http://localhost:5000/students/`);
+      const found = res.data.find(s => s.usn === usn);
+      if (found) {
+        setStudent(found);
+        setEditData({
+          name: found.name,
+          department: found.department,
+          email: found.email,
+          placed: found.placed,
+          lpa: found.lpa
+        });
+        setError("");
+      } else {
+        setStudent(null);
+        setError("Student not found.");
+      }
+    } catch {
       setStudent(null);
-      setError("Student not found.");
+      setError("Error fetching student.");
     }
   };
 
   const handleChange = (e) => {
-    setEditData({ ...editData, [e.target.name]: e.target.value });
+    const { name, value, type, checked } = e.target;
+    setEditData({
+      ...editData,
+      [name]: type === "checkbox" ? checked : value
+    });
   };
 
-  const handleSave = () => {
-    // Add backend update logic here
-    alert("Student profile updated (demo)!");
-    setStudent(editData);
+  const handleSave = async () => {
+    try {
+      await axios.put(`http://localhost:5000/students/${usn}`, editData);
+      alert("Student profile updated!");
+      setStudent(editData);
+    } catch {
+      alert("Error updating student profile.");
+    }
   };
 
   return (
@@ -71,11 +86,11 @@ const StudProfEdit = () => {
               />
             </div>
             <div>
-              <label className="block text-gray-700 font-medium mb-1">Branch</label>
+              <label className="block text-gray-700 font-medium mb-1">Department</label>
               <input
                 type="text"
-                name="branch"
-                value={editData.branch}
+                name="department"
+                value={editData.department}
                 onChange={handleChange}
                 className="px-4 py-2 border border-gray-300 rounded-lg w-full"
               />
@@ -88,6 +103,45 @@ const StudProfEdit = () => {
                 value={editData.email}
                 onChange={handleChange}
                 className="px-4 py-2 border border-gray-300 rounded-lg w-full"
+              />
+            </div>
+            <div>
+              <label className="block text-gray-700 font-medium mb-1">Placed</label>
+              <div className="flex gap-6 items-center">
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="placed"
+                    value={true}
+                    checked={editData.placed === true}
+                    onChange={() => setEditData({ ...editData, placed: true })}
+                    className="mr-2"
+                  />
+                  Yes
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="placed"
+                    value={false}
+                    checked={editData.placed === false}
+                    onChange={() => setEditData({ ...editData, placed: false })}
+                    className="mr-2"
+                  />
+                  No
+                </label>
+              </div>
+            </div>
+            <div>
+              <label className="block text-gray-700 font-medium mb-1">LPA</label>
+              <input
+                type="number"
+                name="lpa"
+                step="0.1"
+                value={editData.lpa}
+                onChange={handleChange}
+                className="px-4 py-2 border border-gray-300 rounded-lg w-full"
+                placeholder="e.g. 3.5"
               />
             </div>
             <button

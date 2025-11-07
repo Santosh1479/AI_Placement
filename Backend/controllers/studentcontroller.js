@@ -53,3 +53,25 @@ exports.getAllStudents = async (req, res) => {
         res.status(400).json({ error: err.message });
     }
 };
+
+exports.updateStudentByUsn = async (req, res) => {
+    try {
+        const { usn } = req.params;
+        const updateFields = {};
+        if (req.body.name) updateFields.name = req.body.name;
+        if (req.body.email) updateFields.email = req.body.email;
+        if (req.body.department) updateFields.department = req.body.department;
+        if (req.body.placed !== undefined) updateFields.placed = req.body.placed;
+        if (req.body.lpa !== undefined) updateFields.lpa = req.body.lpa;
+
+        const student = await Student.findOneAndUpdate(
+            { usn },
+            { $set: updateFields },
+            { new: true }
+        );
+        if (!student) return res.status(404).json({ error: "Student not found" });
+        res.json(student);
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+};

@@ -12,10 +12,13 @@ router.post("/login", studentController.login);
 // Get logged-in student's profile
 router.get("/profile", authStudent, studentController.getProfile);
 
-// Update student's profile (example, you need to implement in controller)
+// Update student's profile
 router.put("/profile", authStudent, studentController.updateProfile);
 
-// Get all students (example, you need to implement in controller)
-router.get("/", authStudent, studentController.getAllStudents);
+// Get all students (for HOD, remove authStudent if needed)
+router.get("/", studentController.getAllStudents);
+
+// Update any student by USN (for HOD)
+router.put("/:usn", studentController.updateStudentByUsn);
 
 module.exports = router;
