@@ -5,8 +5,8 @@ import { loginUser } from './lib/api';
 
 const Login = () => {
   const [role, setRole] = useState('students'); // default lowercase to match endpoints
-  const [email, setEmail] = useState('test2@gmail.com');
-  const [password, setPassword] = useState('test@404');
+  const [email, setEmail] = useState('test@test.com');
+  const [password, setPassword] = useState('testpass');
   const navigate = useNavigate(); // Hook for navigation
 
   const handleRoleChange = (event) => {
@@ -33,7 +33,7 @@ const Login = () => {
 
       // store name for use in Topbar / Notification page
       localStorage.setItem('name', displayName);
-      alert(`Welcome, ${displayName}! You are logged in as ${role}.`);
+      // alert(`Welcome, ${displayName}! You are logged in as ${role}.`);
 
       // Determine destination based on role
       let target = '/';

@@ -34,7 +34,7 @@ const studentSchema = new mongoose.Schema({
         default: "inprogress"
     },
     drivesEnrolled: [{
-        drive: { type: mongoose.Schema.Types.ObjectId, ref: "Drive" },
+        drive: { type: String, ref: "Drive" }, // <-- Change ObjectId to String
         status: {
             type: String,
             enum: ["aptitude", "gd", "interview", "selected", "rejected"],

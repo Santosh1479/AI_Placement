@@ -13,58 +13,53 @@ const Register = () => {
   const [skills, setSkills] = useState(''); // For students
   const navigate = useNavigate(); // Hook for navigation
 
-  const handleRoleChange = (event) => {
-    setRole(event.target.value);
-  };
-
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      // Prepare the data based on the role
-      const data = {
-        name,
-        email,
-        password,
-        ...(role === 'students' && { usn, department, skills: skills.split(',') }),
-        ...(role === 'hods' && { department }),
-        ...(role === 'placeofficers' && {}), // Placement officers don't need additional data
-      };
+  e.preventDefault();
+  try {
+    // Prepare the data based on the role
+    const data = {
+      name,
+      email,
+      password,
+      ...(role === 'students' && { usn, department, skills: skills.split(',') }),
+      ...(role === 'hods' && { department }),
+      ...(role === 'placeofficers' && {}), // Placement officers don't need additional data
+    };
 
-      // Call the registerUser API
-      const response = await registerUser(data.name, data.email, data.password, role, data);
+    // Call the registerUser API
+    const response = await registerUser(data.name, data.email, data.password, role, data);
 
-      // store token/role if present
-      if (response?.token) localStorage.setItem('token', response.token);
-      localStorage.setItem('role', role);
-
-      // derive a display name from possible response shapes, fallback to submitted name or email
-      const displayName =
-        response?.name ||
-        response?.user?.name ||
-        response?.hod?.name ||
-        response?.officer?.name ||
-        response?.student?.name ||
-        name ||
-        email;
-      localStorage.setItem('name', displayName);
-
-      alert(`Registration successful! Welcome, ${displayName}.`);
-
-      // Redirect based on role using react-router navigate
-      if (role === 'students') {
-        navigate('/students/home');
-      } else if (role === 'hods') {
-        navigate('/hods/home');
-      } else if (role === 'placeofficers') {
-        navigate('/placeofficers/home');
-      } else {
-        navigate('/');
-      }
-    } catch (error) {
-      alert(error.message || 'An error occurred during registration. Please try again.');
+    // Store token and role in localStorage
+    if (response?.token) {
+      localStorage.setItem('token', response.token); // Store the token
+      localStorage.setItem('role', role); // Store the role
     }
-  };
 
+    // Derive a display name from the response or fallback to the submitted name/email
+    const displayName =
+      response?.name ||
+      response?.user?.name ||
+      response?.hod?.name ||
+      response?.officer?.name ||
+      response?.student?.name ||
+      name ||
+      email;
+    localStorage.setItem('name', displayName);
+
+    // Redirect based on role using react-router navigate
+    if (role === 'students') {
+      navigate('/students/home');
+    } else if (role === 'hods') {
+      navigate('/hods/home');
+    } else if (role === 'placeofficers') {
+      navigate('/placeofficers/home'); // Explicitly handle placement officer redirection
+    } else {
+      navigate('/');
+    }
+  } catch (error) {
+    alert(error.message || 'An error occurred during registration. Please try again.');
+  }
+};
   return (
     <div
       className="flex items-center justify-center min-h-screen px-4"
