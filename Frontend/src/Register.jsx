@@ -13,6 +13,11 @@ const Register = () => {
   const [skills, setSkills] = useState(''); // For students
   const navigate = useNavigate(); // Hook for navigation
 
+const handleRoleChange = (e) => {
+  setRole(e.target.value);
+};
+
+
   const handleSubmit = async (e) => {
   e.preventDefault();
   try {
@@ -31,8 +36,8 @@ const Register = () => {
 
     // Store token and role in localStorage
     if (response?.token) {
-      localStorage.setItem('token', response.token); // Store the token
-      localStorage.setItem('role', role); // Store the role
+      localStorage.setItem('token', response.token);
+      localStorage.setItem('role', role || response?.role);
     }
 
     // Derive a display name from the response or fallback to the submitted name/email
@@ -47,14 +52,19 @@ const Register = () => {
     localStorage.setItem('name', displayName);
 
     // Redirect based on role using react-router navigate
-    if (role === 'students') {
-      navigate('/students/home');
-    } else if (role === 'hods') {
-      navigate('/hods/home');
-    } else if (role === 'placeofficers') {
-      navigate('/placeofficers/home'); // Explicitly handle placement officer redirection
-    } else {
-      navigate('/');
+    switch (role) {
+      case 'students':
+        navigate('/students/home');
+        break;
+      case 'hods':
+        navigate('/hods/home');
+        break;
+      case 'placeofficers':
+        navigate('/placeofficers/home');
+        break;
+      default:
+        navigate('/');
+        break;
     }
   } catch (error) {
     alert(error.message || 'An error occurred during registration. Please try again.');

@@ -63,7 +63,18 @@ exports.register = async (req, res) => {
     // Call the register service
     const officer = await placeofficeService.register({ name, email, password });
 
-    res.status(201).json({ message: "Placement Officer registered successfully", officer });
+    // Generate a JWT token
+    const token = officer.generateAuthToken();
+
+    res.status(201).json({
+      message: "Placement Officer registered successfully",
+      officer: {
+        name: officer.name,
+        email: officer.email,
+      },
+      token, // Include the token in the response
+      role: "placeofficers", // Include the role for consistency
+    });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }

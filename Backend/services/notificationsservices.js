@@ -1,16 +1,16 @@
 const mongoose = require('mongoose');
+const { sendEmail } = require("../utils/emailService");
 const Notification = require("../models/Notifications");
 const Student = require("../models/Student");
-const { sendEmail } = require("../utils/emailService");
 
 exports.createNotification = async (notificationData) => {
   try {
-    // console.log("[notifications] Creating notification:", notificationData);
+    console.log("[notifications] Creating notification:", notificationData);
 
     // Fetch student details using USN
     const student = await Student.findOne({ usn: notificationData.usn }).select("email name usn");
     if (!student || !student.email) {
-      // console.warn(`[notifications] Student not found or no email for USN ${notificationData.usn}`);
+      console.warn(`[notifications] Student not found or no email for USN ${notificationData.usn}`);
       throw new Error(`Student not found or no email for USN ${notificationData.usn}`);
     }
 
@@ -18,42 +18,38 @@ exports.createNotification = async (notificationData) => {
     const notification = new Notification(notificationData);
     const saved = await notification.save();
 
-    // console.log("[notifications] Notification saved to DB:", {
-    //   id: saved._id,
-    //   usn: saved.usn,
-    //   type: saved.type
-    // });
+    console.log("[notifications] Notification saved to DB:", {
+      id: saved._id,
+      usn: saved.usn,
+      type: saved.type,
+    });
 
-    // Send email to the student
-    // console.log(`[notifications] Triggering email service for student:`, {
-    //   usn: student.usn,
-    //   email: student.email
-    // });
+    // If the current round is "interview" and the student is selected, send an offer letter
+    if (notificationData.round === "interview" && notificationData.type === "result") {
+      console.log(`[notifications] Sending offer letter to ${student.email}`);
 
-    const emailHtml = `
-      <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #4F46E5;">${saved.title}</h2>
-        <p style="color: #374151; font-size: 16px; line-height: 1.5;">${saved.message}</p>
-        ${saved.round ? `<p style="color: #374151;"><strong>Round:</strong> ${saved.round}</p>` : ''}
-        <hr style="border: 1px solid #E5E7EB; margin: 20px 0;">
-        <p style="color: #6B7280; font-size: 14px;">
-          This is an automated message from the Placement Portal. Please do not reply to this email.
-        </p>
-      </div>
-    `;
+      const emailData = {
+        student_name: student.name,
+        company_name: notificationData.title.split(" - ")[0], // Extract company name from title
+        role: "Software Engineer", // You can customize this role dynamically
+         
+      };
 
-    await sendEmail(
-      student.email,
-      saved.title,
-      saved.message,
-      emailHtml
-    );
+      await sendEmail(
+        student.email,
+        "Congratulations on Your Offer!",
+        "You have been selected for the role of Software Engineer.",
+        null, // HTML will be generated dynamically
+        "Offer Letter Notification",
+        emailData
+      );
 
-    // console.log(`[notifications] Email service triggered and sent to ${student.email}`);
+      console.log(`[notifications] Offer letter sent successfully to ${student.email}`);
+    }
+
     return saved;
-
   } catch (err) {
-    // console.error("[notifications] Error in createNotification:", err);
+    console.error("[notifications] Error in createNotification:", err);
     throw err;
   }
 };
