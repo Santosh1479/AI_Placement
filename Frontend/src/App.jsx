@@ -8,20 +8,24 @@ import PlaceOfficeHome from './Placement_Officer/PlaceOffice_home';
 import HOD_Profile from './Head_of_Department/hod_profile';
 import './App.css';
 import DriveEdits from './Placement_Officer/DriveEdits';
-import Notification from './Student/Notification'; // Add this import
-import ApproveSignup from './Head_of_Department/approve_signup'; // Add this import
-import StudProfEdit from './Head_of_Department/stud_prof_edit'; // Add this import
+import Notification from './Student/Notification';
+import ApproveSignup from './Head_of_Department/approve_signup';
+import StudProfEdit from './Head_of_Department/stud_prof_edit';
+import NotVerified from './Student/NotVerified'; // Import NotVerified component
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [role, setRole] = useState(null);
+  const [approval, setApproval] = useState(null); // Add approval state
 
-  // Load authentication and role from localStorage once
+  // Load authentication, role, and approval status from localStorage once
   useEffect(() => {
     const token = localStorage.getItem('token');
     const userRole = localStorage.getItem('role');
+    const userApproval = localStorage.getItem('approval'); // Retrieve approval status
     setIsAuthenticated(!!token); // Set true if token exists
     setRole(userRole ? userRole.toLowerCase() : null); // Normalize role to lowercase
+    setApproval(userApproval); // Set approval status
   }, []);
 
   const routes = [
@@ -29,7 +33,11 @@ const App = () => {
       path: '/',
       element: isAuthenticated ? (
         role === 'students' ? (
-          <Navigate to="/students/home" />
+          approval === 'approved' ? (
+            <Navigate to="/students/home" />
+          ) : (
+            <Navigate to="/students/not-verified" />
+          )
         ) : role === 'placeofficers' ? (
           <Navigate to="/placeofficers/home" />
         ) : (
@@ -49,7 +57,16 @@ const App = () => {
     },
     {
       path: '/students/home',
-      element: isAuthenticated && role === 'students' ? <StudentHome /> : <Navigate to="/login" />,
+      element:
+        isAuthenticated && role === 'students' && approval === 'approved' ? (
+          <StudentHome />
+        ) : (
+          <Navigate to="/students/not-verified" />
+        ),
+    },
+    {
+      path: '/students/not-verified',
+      element: isAuthenticated && role === 'students' ? <NotVerified /> : <Navigate to="/login" />,
     },
     {
       path: '/placeofficers/home',
@@ -74,7 +91,7 @@ const App = () => {
     {
       path: '/hod/edit-student',
       element: isAuthenticated && role === 'hods' ? <StudProfEdit /> : <Navigate to="/login" />,
-    }
+    },
   ];
 
   return (

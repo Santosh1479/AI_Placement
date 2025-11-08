@@ -5,7 +5,7 @@ import { loginUser } from './lib/api';
 
 const Login = () => {
   const [role, setRole] = useState('students'); // default lowercase to match endpoints
-  const [email, setEmail] = useState('test@test.com');
+  const [email, setEmail] = useState('not@test.com');
   const [password, setPassword] = useState('testpass');
   const navigate = useNavigate(); // Hook for navigation
 
@@ -13,39 +13,64 @@ const Login = () => {
     setRole(event.target.value);
   };
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+const handleLogin = async (e) => {
+  e.preventDefault();
 
-    try {
-      const data = await loginUser(email, password, role);
+  try {
+    const data = await loginUser(email, password, role);
 
-      // store token/role if present
-      if (data?.token) localStorage.setItem('token', data.token);
-      localStorage.setItem('role', role || data?.role);
+    // Store token/role if present
+    if (data?.token) localStorage.setItem('token', data.token);
+    localStorage.setItem('role', role || data?.role);
 
-      // derive a display name from different possible response shapes, fallback to email
-      const displayName =
-        data?.name ||
-        data?.user?.name ||
-        data?.officer?.name ||
-        data?.student?.name ||
-        email;
+    // Derive a display name from different possible response shapes, fallback to email
+    const displayName =
+      data?.name ||
+      data?.user?.name ||
+      data?.officer?.name ||
+      data?.student?.name ||
+      email;
 
-      // store name for use in Topbar / Notification page
-      localStorage.setItem('name', displayName);
-      // alert(`Welcome, ${displayName}! You are logged in as ${role}.`);
+    // Store name for use in Topbar / Notification page
+    localStorage.setItem('name', displayName);
 
+    // Strict verification for students
+    if (role === 'students') {
+      const token = localStorage.getItem('token');
+      const profileResponse = await fetch('http://localhost:5000/students/profile', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const profileData = await profileResponse.json();
+
+      if (!profileResponse.ok) {
+        throw new Error(profileData.message || 'Failed to fetch profile');
+      }
+
+      // Store approval status in localStorage
+      localStorage.setItem('approval', profileData.approval);
+
+      // Check if the student is verified and redirect
+      if (profileData.approval === 'approved') {
+        window.location.href = '/students/home';
+      } else {
+        window.location.href = '/students/not-verified';
+      }
+    } else {
       // Determine destination based on role
       let target = '/';
-      if (role === 'students') target = '/students/home';
-      else if (role === 'hods') target = '/hods/home';
+      if (role === 'hods') target = '/hods/home';
       else if (role === 'placeofficers') target = '/placeofficers/home';
 
       window.location.href = target;
-    } catch (error) {
-      alert(error.message || 'An error occurred during login. Please try again.');
     }
-  };
+  } catch (error) {
+    alert(error.message || 'An error occurred during login. Please try again.');
+  }
+};
 
   return (
     <div

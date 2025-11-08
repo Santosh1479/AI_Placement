@@ -17,8 +17,7 @@ const handleRoleChange = (e) => {
   setRole(e.target.value);
 };
 
-
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
   e.preventDefault();
   try {
     // Prepare the data based on the role
@@ -28,7 +27,7 @@ const handleRoleChange = (e) => {
       password,
       ...(role === 'students' && { usn, department, skills: skills.split(',') }),
       ...(role === 'hods' && { department }),
-      ...(role === 'placeofficers' && {}), // Placement officers don't need additional data
+      ...(role === 'placeofficers' && {}),
     };
 
     // Call the registerUser API
@@ -40,7 +39,7 @@ const handleRoleChange = (e) => {
       localStorage.setItem('role', role || response?.role);
     }
 
-    // Derive a display name from the response or fallback to the submitted name/email
+    // Derive a display name from the response
     const displayName =
       response?.name ||
       response?.user?.name ||
@@ -51,20 +50,38 @@ const handleRoleChange = (e) => {
       email;
     localStorage.setItem('name', displayName);
 
-    // Redirect based on role using react-router navigate
-    switch (role) {
-      case 'students':
-        navigate('/students/home');
-        break;
-      case 'hods':
-        navigate('/hods/home');
-        break;
-      case 'placeofficers':
-        navigate('/placeofficers/home');
-        break;
-      default:
-        navigate('/');
-        break;
+    // Check if the role is 'students' and verify the profile
+    if (role === 'students') {
+      const token = localStorage.getItem('token');
+      const profileResponse = await fetch('http://localhost:5000/students/profile', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const profileData = await profileResponse.json();
+
+      if (!profileResponse.ok) {
+        throw new Error(profileData.message || 'Failed to fetch profile');
+      }
+
+      // Store approval status and redirect
+      localStorage.setItem('approval', profileData.approval);
+
+      // Redirect based on approval status
+      if (profileData.approval === 'approved') {
+        window.location.href = '/students/home';
+      } else {
+        window.location.href = '/students/not-verified';
+      }
+    } else {
+      // Redirect based on role
+      let target = '/';
+      if (role === 'hods') target = '/hods/home';
+      else if (role === 'placeofficers') target = '/placeofficers/home';
+
+      window.location.href = target;
     }
   } catch (error) {
     alert(error.message || 'An error occurred during registration. Please try again.');
