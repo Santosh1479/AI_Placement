@@ -3,13 +3,13 @@ import random
 
 API_URL = "http://localhost:5000/students/register"
 
-departments = ["CSE"]
+departments = ["Civil"]
 skills_list = [
     ["Python", "React"], ["Java", "Spring"], ["C++", "ML"], ["HTML", "CSS", "JS"],
     ["Node.js", "MongoDB"], ["SQL", "Django"], ["Go", "Kubernetes"], ["AWS", "Docker"]
 ]
 
-for i in range(1, 31):
+for i in range(51, 61):
     dept = random.choice(departments)
     skills = random.choice(skills_list)
     placed = random.choice([True, False])

@@ -35,3 +35,9 @@ exports.approveStudent = async (studentId) => {
 exports.editStudentProfile = async (studentId, data) => {
     return await Student.findByIdAndUpdate(studentId, data, { new: true });
 };
+
+exports.getHodProfile = async (hodId) => {
+    const hod = await HOD.findById(hodId);
+    if (!hod) throw new Error("HOD not found");
+    return hod;
+};

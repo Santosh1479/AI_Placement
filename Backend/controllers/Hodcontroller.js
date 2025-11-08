@@ -20,6 +20,15 @@ exports.login = async (req, res) => {
     }
 };
 
+exports.getProfile = async (req, res) => {
+    try {
+        const hod = await hodService.getHodProfile(req.user.id);
+        res.json({ department: hod.department });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 exports.approveStudent = async (req, res) => {
     try {
         const student = await hodService.approveStudent(req.params.studentId);

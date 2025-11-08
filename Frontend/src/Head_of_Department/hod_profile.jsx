@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Topbar from "../components/topbar";
 import { Bar, Pie } from "react-chartjs-2";
+import * as XLSX from 'xlsx';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -17,10 +18,9 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Le
 
 const HOD_Profile = () => {
   const navigate = useNavigate();
-  const displayName = localStorage.getItem("name") || "HOD";
-  const hodDepartment = localStorage.getItem("department") || "CSE"; // Adjust as per your login logic
-
+  const [displayName, setDisplayName] = useState(localStorage.getItem('name') || 'HOD');
   const [students, setStudents] = useState([]);
+  const [department, setDepartment] = useState('');
   const [stats, setStats] = useState({
     totalStudents: 0,
     placed: 0,
@@ -30,19 +30,43 @@ const HOD_Profile = () => {
     lpaList: [],
   });
 
+  // Fetch HOD's department first
   useEffect(() => {
-    // Fetch all students
+    const token = localStorage.getItem('token');
+    
+    axios.get("http://localhost:5000/hods/profile", {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+    .then(res => {
+      setDepartment(res.data.department);
+      // If the API returns a name, update displayName
+      if (res.data.name) {
+        setDisplayName(res.data.name);
+      }
+    })
+    .catch(error => {
+      console.error("Error fetching HOD profile:", error);
+    });
+  }, []); // Run once on component mount
+
+  // Fetch students after we have the department
+  useEffect(() => {
+    if (!department) return; // Don't fetch if we don't have department yet
+
     axios.get("http://localhost:5000/students")
       .then(res => {
-        setStudents(res.data);
-        // Filter students by HOD's department
-        const deptStudents = res.data.filter(s => s.department === hodDepartment);
+        const deptStudents = res.data.filter(s => s.department === department);
+        setStudents(deptStudents);
+        
         const placedStudents = deptStudents.filter(s => s.placed);
         const lpaList = placedStudents.map(s => s.lpa || 0);
         const totalStudents = deptStudents.length;
         const placed = placedStudents.length;
         const unplaced = totalStudents - placed;
-        const avgPackage = lpaList.length ? (lpaList.reduce((a, b) => a + b, 0) / lpaList.length).toFixed(2) : 0;
+        const avgPackage = lpaList.length ? 
+          (lpaList.reduce((a, b) => a + b, 0) / lpaList.length).toFixed(2) : 0;
         const highestPackage = lpaList.length ? Math.max(...lpaList) : 0;
 
         setStats({
@@ -53,8 +77,31 @@ const HOD_Profile = () => {
           highestPackage,
           lpaList,
         });
+      })
+      .catch(error => {
+        console.error("Error fetching students:", error);
       });
-  }, [hodDepartment]);
+  }, [department]); // Run when department changes
+
+  const handleDownloadExcel = () => {
+    // Prepare data for Excel
+    const excelData = students.map(student => ({
+      'Name': student.name,
+      'USN': student.usn,
+      'Placed': student.placed ? 'Yes' : 'No',
+      'Package (LPA)': student.placed ? student.lpa : 'N/A'
+    }));
+
+    // Create worksheet
+    const ws = XLSX.utils.json_to_sheet(excelData);
+    
+    // Create workbook
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Students");
+    
+    // Generate Excel file
+    XLSX.writeFile(wb, `${department}_Students_${new Date().toLocaleDateString()}.xlsx`);
+  };
 
   // Bar chart for LPA distribution
   const barData = {
@@ -91,9 +138,20 @@ const HOD_Profile = () => {
 
       {/* Main content */}
       <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-8 mt-8">
-        <h1 className="text-2xl font-bold text-indigo-700 mb-6">
-          Department Placement Statistics ({hodDepartment})
-        </h1>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold text-indigo-700">
+            Department Placement Statistics ({department})
+          </h1>
+          <button
+            onClick={handleDownloadExcel}
+            className="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition flex items-center gap-2"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+            </svg>
+            Download Excel
+          </button>
+        </div>
 
         {/* Summary Cards */}
         <div className="grid grid-cols-2 gap-6 mb-8">
