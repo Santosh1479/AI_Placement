@@ -121,106 +121,33 @@ exports.getDrive = async (req, res) => {
 
 exports.updateDrive = async (req, res) => {
   try {
-    const driveId = req.params.id;
-    const update = req.body;
+    const { id } = req.params;
+    const updates = req.body;
+    
+    // Find current drive
+    const drive = await Drive.findById(id);
+    if (!drive) {
+      return res.status(404).json({ error: "Drive not found" });
+    }
 
-    // console.log("[drivecontroller] updateDrive called", { driveId, update });
+    // Update appointment counts if moving to appointed round
+    if (updates.currentRound === "appointed" && updates.selectedUSNs) {
+      drive.numStudentsSelected += updates.selectedUSNs.length;
+      drive.numRequired = Math.max(0, drive.numRequired - updates.selectedUSNs.length);
+    }
 
-    const drive = await Drive.findById(driveId);
-    if (!drive) return res.status(404).json({ message: "Drive not found" });
-
-    // Apply updates to drive
-    Object.assign(drive, update);
+    // Apply other updates
+    Object.assign(drive, updates);
+    
+    // Save changes
     await drive.save();
 
-    const notificationResults = {
-      success: [],
-      failed: []
-    };
+    // Send updated drive data
+    res.json(drive);
 
-    // Process notifications for selected students
-    const selectedUSNs = update.selectedUSNs || [];
-    for (const usn of selectedUSNs) {
-      try {
-        // console.log(`[drivecontroller] Creating notification for selected student: ${usn}`);
-
-        // Create notification data
-        const notificationData = {
-          usn,
-          title: `${drive.companyName} - ${roundMap[update.currentRound] || update.currentRound} Round`,
-          message: `Congratulations! You have been selected for the ${roundMap[update.currentRound] || update.currentRound} round of ${drive.companyName}.`,
-          type: "result",
-          round: roundMap[update.currentRound] || update.currentRound
-        };
-
-        // console.log("[drivecontroller] Notification data for selected student:", notificationData);
-
-        // Create notification and send email
-        const notif = await notificationService.createNotification(notificationData);
-
-        notificationResults.success.push({
-          usn,
-          notificationId: notif._id
-        });
-        // console.log(`[drivecontroller] Notification sent successfully for ${usn}`);
-      } catch (notifError) {
-        // console.error(`[drivecontroller] Failed to send notification to ${usn}:`, notifError);
-        notificationResults.failed.push({
-          usn,
-          error: notifError.message
-        });
-        continue;
-      }
-    }
-
-    // Process notifications for rejected students
-    const rejectedUSNs = update.rejectedUSNs || [];
-    for (const usn of rejectedUSNs) {
-      try {
-        // console.log(`[drivecontroller] Creating rejection notification for student: ${usn}`);
-
-        // Create rejection notification data
-        const notificationData = {
-          usn,
-          title: `${drive.companyName} - Status Update`,
-          message: `We regret to inform you that you have not been selected to proceed further in the ${drive.companyName} recruitment process.`,
-          type: "result",
-          round: "rejected"
-        };
-
-        // console.log("[drivecontroller] Notification data for rejected student:", notificationData);
-
-        // Create notification and send email
-        const notif = await notificationService.createNotification(notificationData);
-
-        notificationResults.success.push({
-          usn,
-          notificationId: notif._id
-        });
-        // console.log(`[drivecontroller] Rejection notification sent successfully for ${usn}`);
-      } catch (notifError) {
-        // console.error(`[drivecontroller] Failed to send rejection notification to ${usn}:`, notifError);
-        notificationResults.failed.push({
-          usn,
-          error: notifError.message
-        });
-        continue;
-      }
-    }
-
-    return res.json({
-      message: "Drive updated and notifications processed",
-      drive,
-      notificationResults: {
-        successful: notificationResults.success.length,
-        failed: notificationResults.failed.length,
-        details: notificationResults
-      }
-    });
-
-  } catch (err) {
-    // console.error("[drivecontroller] Error in updateDrive:", err);
-    return res.status(500).json({ message: err.message || "Server error" });
+  } catch (error) {
+    console.error("Drive update error:", error);
+    res.status(500).json({ error: error.message });
   }
 };
 

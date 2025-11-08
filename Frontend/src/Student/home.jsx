@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import ATSChecker from "./ATSChecker";
 import Topbar from "../components/topbar";
+import { COLORS } from '../constants/colors'
 
 const home = () => {
   const [personal, setPersonal] = useState({
@@ -69,7 +70,7 @@ const home = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-indigo-100 font-sans">
+    <div style={{ backgroundColor: COLORS.background }} className="min-h-screen">
       {/* Top bar with profile */}
       <Topbar
         name={personal.name}
@@ -82,7 +83,7 @@ const home = () => {
       />
 
       {/* Main content card */}
-      <div className="max-w-xl mx-auto bg-white rounded-2xl shadow-lg p-8 mt-8">
+      <div style={{ backgroundColor: COLORS.accent }} className="max-w-4xl mx-auto rounded-xl p-6">
         {/* Resume upload */}
        <ATSChecker />
 
@@ -97,7 +98,8 @@ const home = () => {
             return (
               <li
                 key={drive._id}
-                className="border border-indigo-100 rounded-xl p-4 bg-gray-50 shadow-sm"
+                style={{ backgroundColor: COLORS.secondary }} 
+                className="rounded-lg p-4 hover:shadow-lg transition-all"
               >
                 <strong className="text-indigo-700">{drive.companyName}</strong>
                 <div className="text-gray-700 mt-1">
@@ -122,7 +124,8 @@ const home = () => {
                     <span className="text-green-600 font-bold">Enrolled</span>
                   ) : drive.currentRound === "aptitude" ? (
                     <button
-                      className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition"
+                      style={{ backgroundColor: COLORS.highlight }}
+                      className="text-white px-4 py-2 rounded"
                       onClick={() => handleEnroll(drive._id)}
                     >
                       Enroll

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Topbar from "../components/topbar"; // added
+import { COLORS } from '../constants/colors'
 
 const API_URL = "http://localhost:5000/drives"; // Adjust if your route is different
 
@@ -113,7 +114,7 @@ const PlaceOfficeHome = () => {
   // The rest of your handlers (handleAddRound, handleAddSelected, handleAddRejected) would need to call backend endpoints as well
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-indigo-100 font-sans flex flex-col">
+    <div style={{ backgroundColor: COLORS.background }} className="min-h-screen bg-gradient-to-br from-gray-50 to-indigo-100 font-sans flex flex-col">
       {/* Topbar added */}
       <Topbar
         name={displayName}
@@ -353,8 +354,24 @@ const PlaceOfficeHome = () => {
           )}
         </div>
       </div>
+
+      {/* Drive management cards */}
+      <div style={{ backgroundColor: COLORS.accent }} className="max-w-4xl mx-auto rounded-xl p-6">
+        <div className="grid gap-4">
+          {drives.map(drive => (
+            <div key={drive._id} style={{ backgroundColor: COLORS.secondary }}
+                 className="rounded-lg p-4">
+              <h3 style={{ color: COLORS.text }}>{drive.companyName}</h3>
+              <button style={{ backgroundColor: COLORS.highlight }}
+                      className="text-white px-4 py-2 rounded">
+                Manage
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };
 
-export default PlaceOfficeHome; 
+export default PlaceOfficeHome;

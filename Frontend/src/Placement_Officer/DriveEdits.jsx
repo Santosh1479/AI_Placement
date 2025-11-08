@@ -23,12 +23,36 @@ const DriveEdits = () => {
   const [selectedUSNs, setSelectedUSNs] = useState([]);
   const [rejectedUSNs, setRejectedUSNs] = useState([]);
   const [showSelection, setShowSelection] = useState(false);
+  const [driveDetails, setDriveDetails] = useState({
+    companyName: "",
+    role: "",
+    numStudentsSelected: 0,
+    numRequired: 0,
+  });
+  const [stats, setStats] = useState({
+    numStudentsSelected: 0,
+    numRequired: 0,
+  });
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     axios
-      .get(`${API_URL}/${id}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
-      .then((res) => setDrive(res.data))
+      .get(`${API_URL}/${id}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
+      .then((res) => {
+        setDrive(res.data);
+        setDriveDetails({
+          companyName: res.data.companyName,
+          role: res.data.role,
+          numStudentsSelected: res.data.selectedUSNs?.length || 0,
+          numRequired: res.data.numRequired || 0,
+        });
+        setStats({
+          numStudentsSelected: res.data.numStudentsSelected,
+          numRequired: res.data.numRequired,
+        });
+      })
       .catch(() => setDrive(null));
   }, [id]);
 
@@ -56,79 +80,39 @@ const DriveEdits = () => {
   const handleNextStage = async () => {
     try {
       const currentIndex = roundsOrder.indexOf(currentRound);
-      const isLastBeforeAppointed = currentRound === "technicalInterview";
-      const isFinalRound = currentRound === "appointed";
-      const nextRound = isLastBeforeAppointed ? "appointed" : roundsOrder[currentIndex + 1];
+      const nextRound = roundsOrder[currentIndex + 1];
 
-      // Only show students who are not already rejected
-      const availableUSNs = drive.appliedUSNs.filter(
-        (usn) => !(drive.rounds.rejected || []).includes(usn)
-      );
+      // Count new appointments
+      const newAppointments = selectedUSNs.length;
 
-      // Students NOT selected (not green-ticked) are rejected
-      const actuallyRejectedUSNs = availableUSNs.filter(
-        (usn) => !selectedUSNs.includes(usn)
-      );
-
-      // Prevent repetition in rejected array
-      const newRejected = [
-        ...drive.rounds.rejected,
-        ...actuallyRejectedUSNs.filter((usn) => !drive.rounds.rejected.includes(usn)),
-      ];
-
-      let updatePayload = {
-        rounds: {
-          ...drive.rounds,
-          rejected: newRejected,
-        },
+      const updatePayload = {
         currentRound: nextRound,
-        selectedUSNs, // Include selected USNs in the payload
-        rejectedUSNs: newRejected, // Include rejected USNs in the payload
+        selectedUSNs,
+        rejectedUSNs,
+        // Add these fields explicitly
+        numStudentsSelected: drive.numStudentsSelected + newAppointments,
+        numRequired: Math.max(0, drive.numRequired - newAppointments),
       };
 
-      if (isLastBeforeAppointed) {
-        updatePayload.rounds.technicalInterview = selectedUSNs;
-        updatePayload.rounds.appointed = selectedUSNs;
-        updatePayload.completed = true;
-      } else if (isFinalRound) {
-        updatePayload.rounds.appointed = selectedUSNs;
-        updatePayload.completed = true;
-      } else {
-        updatePayload.rounds[currentRound] = selectedUSNs;
-      }
-
       const token = localStorage.getItem("token");
-
-      // Log the payload being sent to the backend
-      console.log("Sending update payload to backend:", updatePayload);
-
       const response = await axios.put(`${API_URL}/${id}`, updatePayload, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
 
-      // Log the response from the backend
-      console.log("Response from backend:", response.data);
-
-      setShowSelection(false);
-      setSelectedUSNs([]);
-      setRejectedUSNs([]);
-
-      // Refetch drive (include token)
-      const res = await axios.get(`${API_URL}/${id}`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      // Update local state immediately
+      setStats({
+        numStudentsSelected: response.data.numStudentsSelected,
+        numRequired: response.data.numRequired,
       });
 
-      // Log the updated drive data
-      console.log("Updated drive data:", res.data);
-
-      setDrive(res.data);
+      // Refresh drive data
+      const updatedDrive = await axios.get(`${API_URL}/${id}`);
+      setDrive(updatedDrive.data);
     } catch (err) {
-      // Log any errors encountered
       console.error("Error updating round:", err);
       alert("Error updating round");
     }
   };
-
 
   // Only show students who are in appliedUSNs and NOT in rounds.rejected
   const selectableUSNs = drive.appliedUSNs.filter(
@@ -136,8 +120,8 @@ const DriveEdits = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-indigo-100 flex items-center justify-center font-sans">
-      <div className="max-w-xl w-full bg-white rounded-2xl shadow-lg p-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-indigo-100 p-8">
+      <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-6">
         <h2 className="text-2xl font-bold text-indigo-700 mb-4">
           Edit Drive:{" "}
           <span className="text-indigo-900">{drive.companyName}</span>{" "}
@@ -172,6 +156,23 @@ const DriveEdits = () => {
             )}
           </div>
         </div>
+
+        {/* Add this section to show selection stats */}
+        <div className="mt-4 grid grid-cols-2 gap-4">
+          <div className="bg-green-50 p-4 rounded-lg">
+            <h3 className="font-semibold text-green-700">Selected</h3>
+            <p className="text-2xl font-bold text-green-600">
+              {stats.numStudentsSelected}
+            </p>
+          </div>
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <h3 className="font-semibold text-blue-700">Remaining</h3>
+            <p className="text-2xl font-bold text-blue-600">
+              {stats.numRequired}
+            </p>
+          </div>
+        </div>
+
         {currentRound !== "appointed" && (
           <>
             <button

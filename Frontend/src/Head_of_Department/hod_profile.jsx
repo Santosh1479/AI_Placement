@@ -13,6 +13,7 @@ import {
   Legend,
 } from "chart.js";
 import axios from "axios";
+import { COLORS } from '../constants/colors'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend);
 
@@ -110,7 +111,8 @@ const HOD_Profile = () => {
       {
         label: "LPA",
         data: stats.lpaList,
-        backgroundColor: "rgba(99,102,241,0.7)",
+        backgroundColor: COLORS.primary,
+        borderColor: COLORS.highlight,
         borderRadius: 8,
       },
     ],
@@ -129,7 +131,7 @@ const HOD_Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-indigo-100 font-sans relative">
+    <div style={{ backgroundColor: COLORS.background }} className="min-h-screen">
       {/* Topbar */}
       <Topbar
         name={displayName}
@@ -137,9 +139,9 @@ const HOD_Profile = () => {
       />
 
       {/* Main content */}
-      <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-8 mt-8">
+      <div style={{ backgroundColor: COLORS.accent }} className="max-w-3xl mx-auto rounded-2xl p-8 mt-8">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-indigo-700">
+          <h1 style={{ color: COLORS.text }} className="text-2xl font-bold">
             Department Placement Statistics ({department})
           </h1>
           <button
@@ -155,7 +157,7 @@ const HOD_Profile = () => {
 
         {/* Summary Cards */}
         <div className="grid grid-cols-2 gap-6 mb-8">
-          <div className="bg-indigo-50 rounded-xl p-6 flex flex-col items-center">
+          <div style={{ backgroundColor: COLORS.secondary }} className="rounded-xl p-6 flex flex-col items-center">
             <div className="text-3xl font-extrabold text-indigo-700">
               {stats.totalStudents}
             </div>
