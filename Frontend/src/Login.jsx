@@ -68,7 +68,7 @@ const Login = () => {
         window.location.href = target;
       }
     } catch (error) {
-      alert(error.message || 'An error occurred during login. Please try again.');
+      // alert(error.message || 'An error occurred during login. Please try again.');
     }
   };
 
