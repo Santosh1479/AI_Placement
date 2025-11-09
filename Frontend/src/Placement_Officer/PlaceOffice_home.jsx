@@ -113,43 +113,46 @@ const PlaceOfficeHome = () => {
 
   // The rest of your handlers (handleAddRound, handleAddSelected, handleAddRejected) would need to call backend endpoints as well
 
+  // Update the return section with new styling
   return (
-    <div style={{ backgroundColor: COLORS.background }} className="min-h-screen bg-gradient-to-br from-gray-50 to-indigo-100 font-sans flex flex-col">
-      {/* Topbar added */}
-      <Topbar
-        name={displayName}
-        avatarUrl={`https://avatar.iran.liara.run/public/44`}
-      >
-        
-      </Topbar>
+    <div style={{ backgroundColor: COLORS.background }} className="min-h-screen">
+      <Topbar name={displayName} />
 
       <div className="flex items-center justify-center flex-1 p-6">
-        <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8">
-          <h1 className="text-2xl font-bold text-indigo-700 mb-8 text-center">
+        <div style={{ backgroundColor: COLORS.accent }} 
+             className="max-w-md w-full rounded-2xl shadow-lg p-8 transition-all duration-300 hover:shadow-xl">
+          <h1 style={{ color: COLORS.text }} className="text-2xl font-bold mb-8 text-center">
             Placement Office Head
           </h1>
+          
           <div className="flex flex-col gap-6">
+            {/* Main buttons */}
             <button
-              className="bg-indigo-600 text-white px-6 py-4 rounded-lg font-semibold text-lg hover:bg-indigo-700 transition"
+              style={{ backgroundColor: COLORS.highlight }}
+              className="text-white px-6 py-4 rounded-lg font-semibold text-lg transition-all duration-300 transform hover:scale-105"
               onClick={() => { setShowCreate(true); setShowManage(false); setShowDetails(false); setCreatedId(""); }}
             >
               Create Drive
             </button>
+            
             <button
-              className="bg-indigo-50 text-indigo-700 px-6 py-4 rounded-lg font-semibold text-lg hover:bg-indigo-100 transition"
+              style={{ backgroundColor: COLORS.primary, color: COLORS.text }}
+              className="px-6 py-4 rounded-lg font-semibold text-lg transition-all duration-300 transform hover:scale-105"
               onClick={() => { setShowManage(true); setShowCreate(false); setShowDetails(false); }}
             >
               Manage Drives
             </button>
+            
             <button
-              className="bg-green-50 text-green-700 px-6 py-4 rounded-lg font-semibold text-lg hover:bg-green-100 transition"
+              style={{ backgroundColor: COLORS.secondary, color: COLORS.text }}
+              className="px-6 py-4 rounded-lg font-semibold text-lg transition-all duration-300 transform hover:scale-105"
               onClick={() => { setShowDetails(true); setShowCreate(false); setShowManage(false); setDetailsDrive(null); setDetailsId(""); }}
             >
               Drive Details
             </button>
           </div>
 
-          {/* Create Drive Modal */}
+          {/* Modal sections */}
           {showCreate && (
             <div className="mt-8 bg-indigo-50 rounded-xl p-6 shadow">
               <h2 className="text-lg font-bold text-indigo-700 mb-4">Create New Drive</h2>
@@ -247,7 +250,7 @@ const PlaceOfficeHome = () => {
                 </div>
                 <button
                   type="submit"
-                  className="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition w-full"
+                  className="bg-green-600 text-black px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition w-full"
                 >
                   Create Drive
                 </button>
@@ -260,7 +263,6 @@ const PlaceOfficeHome = () => {
             </div>
           )}
 
-          {/* Manage Drives Modal */}
           {showManage && (
             <div className="mt-8 bg-indigo-50 rounded-xl p-6 shadow">
               <h2 className="text-lg font-bold text-indigo-700 mb-4">Manage Drives</h2>
@@ -314,7 +316,6 @@ const PlaceOfficeHome = () => {
             </div>
           )}
 
-          {/* Drive Details Modal */}
           {showDetails && (
             <div className="mt-8 bg-green-50 rounded-xl p-6 shadow">
               <h2 className="text-lg font-bold text-green-700 mb-4">Drive Details</h2>

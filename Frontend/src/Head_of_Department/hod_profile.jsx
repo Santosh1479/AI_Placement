@@ -132,54 +132,42 @@ const HOD_Profile = () => {
 
   return (
     <div style={{ backgroundColor: COLORS.background }} className="min-h-screen">
-      {/* Topbar */}
       <Topbar
         name={displayName}
-        avatarUrl={`https://avatar.iran.liara.run/public/44`}
       />
 
-      {/* Main content */}
-      <div style={{ backgroundColor: COLORS.accent }} className="max-w-3xl mx-auto rounded-2xl p-8 mt-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 style={{ color: COLORS.text }} className="text-2xl font-bold">
-            Department Placement Statistics ({department})
-          </h1>
-          <button
-            onClick={handleDownloadExcel}
-            className="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition flex items-center gap-2"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
-            </svg>
-            Download Excel
-          </button>
-        </div>
-
-        {/* Summary Cards */}
+      <div style={{ backgroundColor: COLORS.accent }} 
+           className="max-w-3xl mx-auto rounded-2xl p-8 mt-8 shadow-lg transition-all duration-300 hover:shadow-xl">
+        
+        {/* Summary Cards with new styling */}
         <div className="grid grid-cols-2 gap-6 mb-8">
-          <div style={{ backgroundColor: COLORS.secondary }} className="rounded-xl p-6 flex flex-col items-center">
-            <div className="text-3xl font-extrabold text-indigo-700">
+          <div style={{ backgroundColor: COLORS.primary }} 
+               className="rounded-xl p-6 flex flex-col items-center transform transition-all duration-300 hover:scale-105">
+            <div style={{ color: COLORS.text }} className="text-3xl font-extrabold">
               {stats.totalStudents}
             </div>
-            <div className="text-gray-600 mt-2">Total Students</div>
+            <div style={{ color: COLORS.textLight }} className="mt-2">Total Students</div>
           </div>
-          <div className="bg-green-50 rounded-xl p-6 flex flex-col items-center">
-            <div className="text-3xl font-extrabold text-green-600">
+          <div style={{ backgroundColor: COLORS.primary }}
+               className="rounded-xl p-6 flex flex-col items-center transform transition-all duration-300 hover:scale-105">
+            <div style={{ color: COLORS.highlight }} className="text-3xl font-extrabold">
               {stats.placed}
             </div>
-            <div className="text-gray-600 mt-2">Placed</div>
+            <div style={{ color: COLORS.textLight }} className="mt-2">Placed</div>
           </div>
-          <div className="bg-red-50 rounded-xl p-6 flex flex-col items-center">
-            <div className="text-3xl font-extrabold text-red-500">
+          <div style={{ backgroundColor: COLORS.primary }}
+               className="rounded-xl p-6 flex flex-col items-center transform transition-all duration-300 hover:scale-105">
+            <div style={{ color: COLORS.text }} className="text-3xl font-extrabold">
               {stats.unplaced}
             </div>
-            <div className="text-gray-600 mt-2">Unplaced</div>
+            <div style={{ color: COLORS.textLight }} className="mt-2">Unplaced</div>
           </div>
-          <div className="bg-yellow-50 rounded-xl p-6 flex flex-col items-center">
-            <div className="text-3xl font-extrabold text-yellow-600">
+          <div style={{ backgroundColor: COLORS.primary }}
+               className="rounded-xl p-6 flex flex-col items-center transform transition-all duration-300 hover:scale-105">
+            <div style={{ color: COLORS.highlight }} className="text-3xl font-extrabold">
               ₹{stats.avgPackage}L
             </div>
-            <div className="text-gray-600 mt-2">Avg. Package</div>
+            <div style={{ color: COLORS.textLight }} className="mt-2">Avg. Package</div>
           </div>
         </div>
 
@@ -211,13 +199,15 @@ const HOD_Profile = () => {
         {/* Menu Buttons below all stats */}
         <div className="flex justify-center gap-6 mt-12">
           <button
-            className="bg-indigo-600 text-white px-6 py-3 rounded-xl font-semibold shadow hover:bg-indigo-700 transition"
+            style={{ backgroundColor: COLORS.highlight }}
+            className="text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
             onClick={() => navigate("/hod/approve-signup")}
           >
             Approve Signup Requests
           </button>
           <button
-            className="bg-green-600 text-white px-6 py-3 rounded-xl font-semibold shadow hover:bg-green-700 transition"
+            style={{ backgroundColor: COLORS.highlight }}
+            className="text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
             onClick={() => navigate("/hod/edit-student")}
           >
             Edit Student Profile
