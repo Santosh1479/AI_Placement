@@ -48,6 +48,10 @@ const studentSchema = new mongoose.Schema({
     lpa: {
         type: Number,
         default: 0
+    },
+    ats_score: {
+        type: Number,
+        default: 0
     }
 });
 

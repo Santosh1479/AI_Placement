@@ -21,4 +21,9 @@ router.get("/", studentController.getAllStudents);
 // Update any student by USN (for HOD)
 router.put("/:usn", studentController.updateStudentByUsn);
 
+//
+router.post("/calculate-ats", authStudent, studentController.calculateAtsScore);
+
+router.get("/get-ats", authStudent, studentController.getAtsScore);
+
 module.exports = router;

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 const Topbar = ({ name, avatarUrl, children }) => {
   const navigate = useNavigate();
+  const role = localStorage.getItem("role")?.toLowerCase();
 
   const displayName =
     name ||
@@ -11,7 +12,7 @@ const Topbar = ({ name, avatarUrl, children }) => {
     "User";
   const avatar =
     avatarUrl ||
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}`;
+    `https://avatar.iran.liara.run/public/44 `;
 
   const [unreadCount, setUnreadCount] = useState(
     Number(localStorage.getItem("unreadNotifications") || 0)
@@ -79,21 +80,23 @@ const Topbar = ({ name, avatarUrl, children }) => {
 
       {/* Right: notification icon then logout */}
       <div className="flex items-center gap-3">
-        <button
-          onClick={goToNotifications}
-          title="Notifications"
-          className="relative p-2 rounded-full hover:bg-white/20 transition"
-        >
-          {/* simple bell icon */}
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-          </svg>
+        {role === 'students' && (
+          <button
+            onClick={goToNotifications}
+            title="Notifications"
+            className="relative p-2 rounded-full hover:bg-white/20 transition"
+          >
+            {/* simple bell icon */}
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
 
-          {/* optional badge dot if unread count exists in localStorage */}
-          {unreadCount > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center w-3.5 h-3.5 rounded-full bg-red-500 ring-2 ring-white text-[10px] text-white" />
-          )}
-        </button>
+            {/* optional badge dot if unread count exists in localStorage */}
+            {unreadCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center w-3.5 h-3.5 rounded-full bg-red-500 ring-2 ring-white text-[10px] text-white" />
+            )}
+          </button>
+        )}
 
         <button
           onClick={handleLogout}

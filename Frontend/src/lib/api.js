@@ -1,9 +1,10 @@
-const API_BASE_URL = 'http://localhost:5000'; // Base URL for the backend
+const API_BASE_URL = 'http://localhost:5000';
+import axios from 'axios';
 
 // Function to handle login
 export const loginUser = async (email, password, role) => {
   try {
-    console.log('Sending login request to backend:', { email, password, role });
+    // console.log('Sending login request to backend:', { email, password, role });
 
     // Dynamically construct the endpoint based on the role
     const endpoint = `${API_BASE_URL}/${role.toLowerCase()}/login`;
@@ -77,5 +78,56 @@ export const registerUser = async (name, email, password, role, additionalData =
     return data;
   } catch (error) {
     throw new Error(error.message || 'An error occurred during registration');
+  }
+};
+
+// Function to calculate ATS score
+export const calculateAtsScore = async (resumeText) => {
+  try {
+    const token = localStorage.getItem('token');
+    // console.log('[API] Sending resume text length:', resumeText.length);
+
+    const response = await axios.post(
+      `${API_BASE_URL}/students/calculate-ats`,
+      { resumeText },
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    // console.log('[API] Raw response:', response);
+    // console.log('[API] Response data:', response.data);
+    
+    // Return the response data directly
+    return response.data;
+  } catch (error) {
+    error('[API] Error details:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status
+    }
+  );
+    throw new Error(error.response?.data?.message || 'An error occurred while calculating ATS score');
+  }
+};
+
+// Function to get ATS score
+export const getAtsScore = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await axios.get(
+      `${API_BASE_URL}/students/get-ats`,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'An error occurred while getting ATS score');
   }
 };

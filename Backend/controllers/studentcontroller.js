@@ -75,3 +75,47 @@ exports.updateStudentByUsn = async (req, res) => {
         res.status(400).json({ error: err.message });
     }
 };
+
+
+exports.calculateAtsScore = async (req, res) => {
+    try {
+        const { resumeText, jobDescription } = req.body;
+        
+        if (!resumeText) {
+            return res.status(400).json({ error: "Resume text is required" });
+        }
+
+        const result = await studentService.analyzeResume(resumeText, jobDescription);
+        
+        if (!result.success) {
+            return res.status(500).json({ 
+                error: "Failed to analyze resume",
+                details: result.error 
+            });
+        }
+
+        // Update the student's ATS score
+        await studentService.updateAtsScore(req.user._id, result.data.total_score);
+
+        res.json({
+            ...result.data,
+            message: "ATS score updated successfully"
+        });
+    } catch (err) {
+        console.error("[studentController] calculateAtsScore error:", err);
+        res.status(500).json({ 
+            error: "Failed to calculate ATS score",
+            details: err.message 
+        });
+    }
+};
+
+exports.getAtsScore = async (req, res) => { 
+    try {
+        const student = await Student.findById(req.user._id);
+        if (!student) return res.status(404).json({ error: "Student not found" });
+        res.json({ ats_score: student.ats_score });
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+};
