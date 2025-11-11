@@ -1,17 +1,13 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { COLORS } from './constants/colors';
-import { loginUser } from './lib/api';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { COLORS } from "./constants/colors";
+import { loginUser } from "./lib/api";
 
 const Login = () => {
-  const [role, setRole] = useState('students'); // default lowercase to match endpoints
-  const [email, setEmail] = useState('test@test.com');
-  const [password, setPassword] = useState('testpass');
-  const navigate = useNavigate(); // Hook for navigation
-
-  const handleRoleChange = (event) => {
-    setRole(event.target.value);
-  };
+  const [role, setRole] = useState("students");
+  const [email, setEmail] = useState("test@test.com");
+  const [password, setPassword] = useState("testpass");
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -19,11 +15,9 @@ const Login = () => {
     try {
       const data = await loginUser(email, password, role);
 
-      // Store token/role if present
-      if (data?.token) localStorage.setItem('token', data.token);
-      localStorage.setItem('role', role || data?.role);
+      if (data?.token) localStorage.setItem("token", data.token);
+      localStorage.setItem("role", role || data?.role);
 
-      // Derive a display name from different possible response shapes, fallback to email
       const displayName =
         data?.name ||
         data?.user?.name ||
@@ -31,66 +25,67 @@ const Login = () => {
         data?.student?.name ||
         email;
 
-      // Store name for use in Topbar / Notification page
-      localStorage.setItem('name', displayName);
+      localStorage.setItem("name", displayName);
 
-      // Strict verification for students
-      if (role === 'students') {
-        const token = localStorage.getItem('token');
-        const profileResponse = await fetch('http://localhost:5000/students/profile', {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+      if (role === "students") {
+        const token = localStorage.getItem("token");
+        const profileResponse = await fetch(
+          "http://localhost:5000/students/profile",
+          {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
 
         const profileData = await profileResponse.json();
+        localStorage.setItem("approval", profileData.approval);
 
-        if (!profileResponse.ok) {
-          throw new Error(profileData.message || 'Failed to fetch profile');
-        }
-
-        // Store approval status in localStorage
-        localStorage.setItem('approval', profileData.approval);
-
-        // Check if the student is verified and redirect
-        if (profileData.approval === 'approved') {
-          window.location.href = '/students/home';
+        if (profileData.approval === "approved") {
+          window.location.href = "/students/home";
         } else {
-          window.location.href = '/students/not-verified';
+          window.location.href = "/students/not-verified";
         }
       } else {
-        // Determine destination based on role
-        let target = '/';
-        if (role === 'hods') target = '/hods/home';
-        else if (role === 'placeofficers') target = '/placeofficers/home';
-
+        let target = "/";
+        if (role === "hods") target = "/hods/home";
+        else if (role === "placeofficers") target = "/placeofficers/home";
         window.location.href = target;
       }
     } catch (error) {
-      // alert(error.message || 'An error occurred during login. Please try again.');
+      console.error(error);
+      alert("Login failed. Please check your credentials.");
     }
   };
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center px-4"
-      style={{ backgroundColor: COLORS.background }}
+      className="min-h-screen flex items-center justify-center px-4 py-12"
+      style={{
+        backgroundColor: COLORS.background,
+        background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.secondary} 100%)`,
+        color: COLORS.text,
+      }}
     >
       <div
-        className="w-full max-w-md rounded-lg p-6"
-        style={{ backgroundColor: COLORS.accent }}
+        className="w-full max-w-md rounded-3xl p-8 shadow-2xl transition-all hover:scale-[1.02]"
+        style={{
+          backgroundColor: COLORS.card,
+          boxShadow: `0 12px 30px ${COLORS.shadow}`,
+        }}
       >
+        {/* 🔹 Title */}
         <h2
-          className="text-center text-2xl font-bold mb-4"
-          style={{ color: COLORS.text }}
+          className="text-center text-3xl font-extrabold mb-8 uppercase tracking-wide"
+          style={{ color: COLORS.accent }}
         >
-          {role} Login
+          {role.charAt(0).toUpperCase() + role.slice(1)} Login
         </h2>
-        <form onSubmit={handleLogin} className="mt-6">
-          <div className="mb-4">
+
+        {/* 🧾 Login Form */}
+        <form onSubmit={handleLogin} className="space-y-6">
+          <div>
             <label
-              className="block text-sm font-medium mb-1"
+              className="block text-sm font-medium mb-2"
               style={{ color: COLORS.text }}
             >
               Email
@@ -99,15 +94,23 @@ const Login = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-xl p-3 transition duration-200"
+              style={{
+                border: `1px solid ${COLORS.border}`,
+                // backgroundColor: COLORS.surface,
+                color: COLORS.text, // Ensures text is visible
+                caretColor: COLORS.accent, // Improves cursor visibility
+                backgroundColor: COLORS.card, // replaces pure white
+                // color: COLORS.text, // visible text color
+              }}
               placeholder="Enter your email"
-              autoComplete="email"
               required
             />
           </div>
-          <div className="mb-4">
+
+          <div>
             <label
-              className="block text-sm font-medium mb-1"
+              className="block text-sm font-medium mb-2"
               style={{ color: COLORS.text }}
             >
               Password
@@ -116,51 +119,78 @@ const Login = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-xl p-3 transition duration-200"
+              style={{
+                border: `1px solid ${COLORS.border}`,
+               backgroundColor: COLORS.card,
+                color: COLORS.text, // Ensures text is visible
+                caretColor: COLORS.accent, // Improves cursor visibility
+              }}
               placeholder="Enter your password"
-              autoComplete="current-password"
               required
             />
           </div>
-          <div className="mb-4">
+
+          <div>
             <label
-              className="block text-sm font-medium mb-1"
+              className="block text-sm font-medium mb-2"
               style={{ color: COLORS.text }}
             >
               Role
             </label>
             <select
               value={role}
-              onChange={handleRoleChange}
-              className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              onChange={(e) => setRole(e.target.value)}
+              className="w-full rounded-xl p-3 transition duration-200 cursor-pointer"
+              style={{
+                border: `1px solid ${COLORS.border}`,
+               backgroundColor: COLORS.card,
+                color: COLORS.text, // Ensures text is visible
+              }}
               required
             >
-              <option value="students">Students</option>
+              <option value="students">Student</option>
               <option value="hods">HOD</option>
-              <option value="placeofficers">Placement Officers</option>
+              <option value="placeofficers">Placement Officer</option>
             </select>
           </div>
+
+          {/* 🔘 Login Button */}
           <button
             type="submit"
-            className="w-full py-2 rounded-md font-bold text-white"
+            className="w-full py-3 rounded-xl font-bold text-white transition-all hover:scale-[1.03]"
             style={{
               backgroundColor: COLORS.highlight,
-              border: `1px solid ${COLORS.border}`,
+              boxShadow: `0 4px 12px ${COLORS.shadow}`,
             }}
           >
             Login
           </button>
         </form>
-        <div className="mt-4 text-center text-sm" style={{ color: COLORS.textLight }}>
-          Forgot your password? <a href="#" className="underline">Click here</a>
+
+        {/* 🧭 Footer Section */}
+        <div className="mt-8 text-center">
+          <a
+            href="#"
+            className="text-sm font-medium hover:underline"
+            style={{ color: COLORS.accent }}
+          >
+            Forgot your password?
+          </a>
         </div>
-        <div className="mt-4 text-center">
-          <p className="text-sm" style={{ color: COLORS.textLight }}>
-            Don't have an account?
+
+        <div className="mt-6 text-center">
+          <p className="text-sm mb-2" style={{ color: COLORS.textLight }}>
+            Don’t have an account?
           </p>
           <a
             href="/register"
-            className="inline-block mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            className="inline-block px-6 py-2 rounded-xl font-semibold transition-all hover:scale-[1.03]"
+            style={{
+              backgroundColor: COLORS.secondary,
+              color: COLORS.text,
+              boxShadow: `0 3px 8px ${COLORS.shadow}`,
+            }}
           >
             Register
           </a>

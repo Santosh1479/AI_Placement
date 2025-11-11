@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { COLORS } from '../constants/colors';
 
 // Demo drives data (can import from a shared file)
 const demoDrives = [
@@ -32,62 +33,136 @@ const DriveDetails = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-indigo-100 font-sans flex items-center justify-center">
-      <div className="max-w-lg w-full bg-white rounded-2xl shadow-lg p-8">
-        <h1 className="text-2xl font-bold text-indigo-700 mb-6 text-center">Drive Details</h1>
+    <div 
+      className="min-h-screen flex items-center justify-center font-sans"
+      style={{ 
+        background: `linear-gradient(to bottom right, ${COLORS.background}, ${COLORS.secondary})`
+      }}
+    >
+      <div 
+        className="max-w-lg w-full rounded-2xl p-8"
+        style={{ 
+          backgroundColor: COLORS.card,
+          boxShadow: `0 4px 6px ${COLORS.shadow}`,
+          border: `1px solid ${COLORS.border}`
+        }}
+      >
+        <h1 
+          className="text-2xl font-bold mb-6 text-center"
+          style={{ color: COLORS.primary }}
+        >
+          Drive Details
+        </h1>
+
         <div className="flex gap-2 mb-6">
           <input
             type="text"
             value={driveId}
             onChange={e => setDriveId(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg w-full"
+            className="px-3 py-2 rounded-lg w-full"
+            style={{ 
+              border: `1px solid ${COLORS.border}`,
+              backgroundColor: COLORS.background,
+              color: COLORS.text
+            }}
             placeholder="Enter Drive ID (e.g. DRV001)"
           />
           <button
-            className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition"
+            className="px-4 py-2 rounded-lg font-semibold transition"
+            style={{ 
+              backgroundColor: COLORS.primary,
+              color: COLORS.white 
+            }}
             onClick={handleSearch}
           >
             Search
           </button>
         </div>
+
         {!drive && driveId && (
-          <div className="text-red-500 mb-2">Drive not found.</div>
+          <div 
+            className="mb-2"
+            style={{ color: COLORS.expense }}
+          >
+            Drive not found.
+          </div>
         )}
+
         {drive && (
           <div>
-            <div className="mb-2 font-semibold text-indigo-800">
+            <div 
+              className="mb-2 font-semibold"
+              style={{ color: COLORS.primary }}
+            >
               {drive.company} | {drive.role}
             </div>
-            <div className="text-gray-700 text-sm mb-2">
+
+            <div 
+              className="text-sm mb-2"
+              style={{ color: COLORS.text }}
+            >
               Date: {drive.date} <br />
-              Required: {drive.required} | Placed: {drive.placed} | Remaining: {drive.required - drive.placed}
-              <br />
+              Required: {drive.required} | Placed: {drive.placed} | 
+              Remaining: {drive.required - drive.placed}<br />
               Min CGPA: {drive.cgpa} | Skills: {drive.skills}
             </div>
+
             <div className="mb-4">
-              <div className="font-semibold text-indigo-700 mb-1">Selected Students:</div>
+              <div 
+                className="font-semibold mb-1"
+                style={{ color: COLORS.primary }}
+              >
+                Selected Students:
+              </div>
               <ul className="list-disc pl-5 mb-2">
                 {drive.selected.map((s, idx) => (
-                  <li key={idx}>{s}</li>
+                  <li 
+                    key={idx}
+                    style={{ color: COLORS.text }}
+                  >
+                    {s}
+                  </li>
                 ))}
               </ul>
             </div>
+
             <div className="mb-4">
-              <label className="block text-gray-700 font-medium mb-2">Upload Offer Letter/Document</label>
+              <label 
+                className="block font-medium mb-2"
+                style={{ color: COLORS.text }}
+              >
+                Upload Offer Letter/Document
+              </label>
               <input
                 type="file"
                 onChange={handleFileChange}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-lg"
+                className="block w-full px-3 py-2 rounded-lg"
+                style={{ 
+                  border: `1px solid ${COLORS.border}`,
+                  backgroundColor: COLORS.background,
+                  color: COLORS.text
+                }}
               />
             </div>
+
             <button
-              className="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition w-full"
+              className="px-4 py-2 rounded-lg font-semibold transition w-full"
+              style={{ 
+                backgroundColor: COLORS.success,
+                color: COLORS.white
+              }}
               onClick={handleSendEmail}
             >
               Send Email & Notify Selected
             </button>
+
             {message && (
-              <div className="mt-4 text-green-700 font-bold text-center">{message}</div>
+              <div 
+                className="mt-4 font-bold text-center"
+                style={{ color: COLORS.success }}
+              >
+                {message}
+              </div>
             )}
           </div>
         )}

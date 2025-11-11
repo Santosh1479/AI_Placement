@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import * as pdfjsLib from "pdfjs-dist";
-import { calculateAtsScore, getAtsScore } from '../lib/api';
+import NProgress from "nprogress";
+import "nprogress/nprogress.css";
+import { calculateAtsScore, getAtsScore } from "../lib/api";
+import { COLORS } from "../constants/colors";
 
 // Update worker source to use specific version
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
@@ -55,6 +58,7 @@ export default function ATSChecker() {
 
     setLoading(true);
     setError(null);
+    NProgress.start(); // Start progress bar
 
     try {
       if (file.type === "application/pdf") {
@@ -80,12 +84,23 @@ export default function ATSChecker() {
       setScore(storedScore); // Revert to stored score on error
     } finally {
       setLoading(false);
+      NProgress.done(); // End progress bar
     }
   };
 
   return (
-    <div className="p-6 bg-white rounded-2xl shadow mt-8">
-      <h2 className="text-xl font-bold mb-4 text-center">
+    <div 
+      className="p-6 rounded-2xl shadow mt-8"
+      style={{ 
+        backgroundColor: COLORS.card,
+        boxShadow: `0 4px 6px ${COLORS.shadow}`,
+        border: `1px solid ${COLORS.border}`
+      }}
+    >
+      <h2 
+        className="text-xl font-bold mb-4 text-center"
+        style={{ color: COLORS.text }}
+      >
         ATS Resume Score Checker
       </h2>
       
@@ -93,30 +108,49 @@ export default function ATSChecker() {
         type="file"
         accept=".pdf"
         onChange={handleFile}
-        className="block w-full p-2 mb-4 border rounded hover:border-blue-500 focus:outline-none focus:border-blue-600"
+        className="block w-full p-2 mb-4 rounded transition-all duration-200"
+        style={{
+          border: `1px solid ${COLORS.border}`,
+          backgroundColor: COLORS.background,
+          color: COLORS.text,
+        }}
       />
       
       {loading && (
-        <div className="text-center text-gray-600">
-          <p className="animate-pulse">Analyzing resume...</p>
+        <div 
+          className="text-center animate-pulse"
+          style={{ color: COLORS.textLight }}
+        >
+          <p>Analyzing resume...</p>
         </div>
       )}
       
       {error && (
-        <div className="text-center text-red-600 mb-4">
+        <div className="text-center mb-4" style={{ color: COLORS.expense }}>
           <p>{error}</p>
         </div>
       )}
       
       {(score !== null || storedScore !== null) && !loading && (
         <div className="text-center">
-          <p className="text-2xl font-bold">
+          <p 
+            className="text-2xl font-bold"
+            style={{ color: COLORS.text }}
+          >
             ATS Score: 
-            <span className={`ml-2 ${(score || storedScore) >= 70 ? 'text-green-600' : 'text-red-600'}`}>
+            <span 
+              className="ml-2"
+              style={{ 
+                color: (score || storedScore) >= 70 ? COLORS.success : COLORS.expense 
+              }}
+            >
               {score || storedScore}%
             </span>
           </p>
-          <p className="mt-2 text-sm text-gray-600">
+          <p 
+            className="mt-2 text-sm"
+            style={{ color: COLORS.textLight }}
+          >
             {(score || storedScore) >= 70 
               ? 'Great! Your resume is well-optimized for ATS systems.'
               : 'Consider improving your resume to better match ATS requirements.'}

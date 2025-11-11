@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import ATSChecker from "./ATSChecker";
 import Topbar from "../components/topbar";
-import { COLORS } from '../constants/colors'
+import { COLORS } from "../constants/colors";
 
-const home = () => {
+const Home = () => {
   const [personal, setPersonal] = useState({
     name: "",
     email: "",
@@ -12,141 +12,203 @@ const home = () => {
     skills: [],
     usn: "",
   });
-  const [resume, setResume] = useState(null);
   const [allDrives, setAllDrives] = useState([]);
   const [filteredDrives, setFilteredDrives] = useState([]);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    // Fetch student profile
     axios
       .get("http://localhost:5000/students/profile", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       })
       .then((res) => {
         setPersonal(res.data);
-        // Fetch all drives after getting skills
-        axios.get("http://localhost:5000/drives").then((driveRes) => {
-          setAllDrives(driveRes.data);
-          // Filter drives by matching skills
-          const studentSkills = res.data.skills || [];
-          const matchedDrives = driveRes.data.filter((drive) =>
-            drive.skillsRequired.some((skill) => studentSkills.includes(skill))
-          );
-          setFilteredDrives(matchedDrives);
-        });
-      });
+        return axios.get("http://localhost:5000/drives");
+      })
+      .then((driveRes) => {
+        setAllDrives(driveRes.data);
+        const studentSkills = res.data.skills || [];
+        const matchedDrives = driveRes.data.filter((drive) =>
+          drive.skillsRequired.some((skill) => studentSkills.includes(skill))
+        );
+        setFilteredDrives(matchedDrives);
+      })
+      .catch((err) => console.error(err));
   }, []);
-
-  const handleResumeUpload = (e) => {
-    setResume(e.target.files[0]);
-  };
 
   const handleEnroll = async (driveId) => {
     try {
       await axios.post(`http://localhost:5000/drives/${driveId}/enroll`, {
         usn: personal.usn,
       });
-      setMessage("Enrolled in drive! You will receive email updates.");
-      // Optionally, refetch drives to update UI
-      axios.get("http://localhost:5000/drives").then((driveRes) => {
-        setAllDrives(driveRes.data);
-        const studentSkills = personal.skills || [];
-        const matchedDrives = driveRes.data.filter((drive) =>
-          drive.skillsRequired.some((skill) => studentSkills.includes(skill))
-        );
-        setFilteredDrives(matchedDrives);
-      });
+      setMessage("✅ Successfully enrolled! You’ll receive email updates.");
+      const driveRes = await axios.get("http://localhost:5000/drives");
+      const studentSkills = personal.skills || [];
+      const matchedDrives = driveRes.data.filter((drive) =>
+        drive.skillsRequired.some((skill) => studentSkills.includes(skill))
+      );
+      setFilteredDrives(matchedDrives);
     } catch (err) {
-      setMessage("Enrollment failed.");
+      setMessage("❌ Enrollment failed. Try again later.");
     }
   };
 
-  const handleDownloadOffer = (id) => {
-    setMessage("Offer letter downloaded (demo)!");
-    // Actual download logic goes here
-  };
-
   return (
-    <div style={{ backgroundColor: COLORS.background }} className="min-h-screen">
-      {/* Top bar with profile */}
+    <div
+      style={{
+        backgroundColor: COLORS.background,
+        minHeight: "100vh",
+        color: COLORS.text,
+      }}
+    >
+      {/* 🌟 Topbar */}
       <Topbar
         name={personal.name}
         avatarUrl={`https://avatar.iran.liara.run/public/44`}
-        onLogout={() => {
-          localStorage.removeItem("token");
-          localStorage.removeItem("role");
-          window.location.href = "/login";
-        }}
       />
 
-      {/* Main content card */}
-      <div style={{ backgroundColor: COLORS.accent }} className="max-w-4xl mx-auto rounded-xl p-6">
-        {/* Resume upload */}
-       <ATSChecker />
+      {/* 📄 Main Container */}
+      <div
+        className="max-w-5xl mx-auto mt-10 mb-12 p-10 rounded-3xl transition-all"
+        style={{
+          backgroundColor: COLORS.primary,
+          boxShadow: `0 8px 25px ${COLORS.shadow}`,
+        }}
+      >
+        {/* 🧩 ATS Resume Section */}
+        <h1
+          className="text-2xl md:text-3xl font-extrabold text-center mb-10 uppercase tracking-wide"
+          style={{ color: COLORS.accent }}
+        >
+          Resume Analyzer & Skill Matching
+        </h1>
 
-        {/* Placement drives list */}
-        <h2 className="text-indigo-700 font-bold text-xl mb-4">
+        <div
+          className="p-8 rounded-2xl mb-12 transition-all hover:scale-[1.01]"
+          style={{
+            backgroundColor: COLORS.card,
+            boxShadow: `0 4px 12px ${COLORS.shadow}`,
+          }}
+        >
+          <ATSChecker />
+        </div>
+
+        {/* 🚀 Active Placement Drives */}
+        <h2
+          className="text-xl md:text-2xl font-bold mb-6 text-center uppercase tracking-wide"
+          style={{ color: COLORS.accent }}
+        >
           Active Placement Drives Matching Your Skills
         </h2>
-        <ul className="space-y-4 mb-4">
-          {filteredDrives.map((drive) => {
-            const isEnrolled = (drive.appliedUSNs || []).includes(personal.usn);
 
-            return (
-              <li
-                key={drive._id}
-                style={{ backgroundColor: COLORS.secondary }} 
-                className="rounded-lg p-4 hover:shadow-lg transition-all"
-              >
-                <strong className="text-indigo-700">{drive.companyName}</strong>
-                <div className="text-gray-700 mt-1">
-                  Role: <span className="font-medium">{drive.role}</span>
-                  <br />
-                  Date: <span className="font-medium">{drive.date}</span>
-                  <br />
-                  Required Skills:{" "}
-                  <span className="font-semibold">
-                    {drive.skillsRequired.join(", ")}
-                  </span>
-                  <br />
-                  <span>
-                    <strong>Required CGPA:</strong> {drive.cgpaRequired}
-                  </span>
-                  <br />
-                  Current Round:{" "}
-                  <span className="font-semibold">{drive.currentRound}</span>
-                </div>
-                <div className="mt-2">
-                  {isEnrolled ? (
-                    <span className="text-green-600 font-bold">Enrolled</span>
-                  ) : drive.currentRound === "aptitude" ? (
-                    <button
-                      style={{ backgroundColor: COLORS.highlight }}
-                      className="text-white px-4 py-2 rounded"
-                      onClick={() => handleEnroll(drive._id)}
-                    >
-                      Enroll
-                    </button>
-                  ) : (
-                    <span className="text-gray-500">Enrollment Closed</span>
-                  )}
-                </div>
-              </li>
-            );
-          })}
-        </ul>
+        {filteredDrives.length === 0 ? (
+          <div
+            className="text-center py-12 text-lg rounded-2xl"
+            style={{
+              backgroundColor: COLORS.card,
+              color: COLORS.textLight,
+              boxShadow: `0 3px 10px ${COLORS.shadow}`,
+            }}
+          >
+            No drives currently match your skill set. Keep your resume updated!
+          </div>
+        ) : (
+          <ul className="space-y-6">
+            {filteredDrives.map((drive) => {
+              const isEnrolled = (drive.appliedUSNs || []).includes(personal.usn);
+              return (
+                <li
+                  key={drive._id}
+                  className="p-6 md:p-8 rounded-2xl transition-transform hover:scale-[1.02]"
+                  style={{
+                    backgroundColor: COLORS.card,
+                    boxShadow: `0 5px 14px ${COLORS.shadow}`,
+                  }}
+                >
+                  <div className="flex flex-col md:flex-row justify-between gap-4 md:items-start">
+                    <div>
+                      <h3
+                        className="text-lg md:text-xl font-extrabold mb-2"
+                        style={{ color: COLORS.accent }}
+                      >
+                        {drive.companyName}
+                      </h3>
+
+                      <p style={{ color: COLORS.textLight }}>
+                        <strong>Role:</strong> {drive.role}
+                        <br />
+                        <strong>Date:</strong> {drive.date}
+                        <br />
+                        <strong>Required Skills:</strong>{" "}
+                        {drive.skillsRequired.join(", ")}
+                        <br />
+                        <strong>Required CGPA:</strong> {drive.cgpaRequired}
+                        <br />
+                        <strong>Current Round:</strong> {drive.currentRound}
+                      </p>
+                    </div>
+
+                    {/* 🎯 Status / Enroll Button */}
+                    <div className="text-center md:text-right">
+                      {isEnrolled ? (
+                        <span
+                          className="px-4 py-2 rounded-lg font-semibold"
+                          style={{
+                            backgroundColor: COLORS.success,
+                            color: COLORS.background,
+                          }}
+                        >
+                          Enrolled
+                        </span>
+                      ) : drive.currentRound === "aptitude" ? (
+                        <button
+                          onClick={() => handleEnroll(drive._id)}
+                          className="px-5 py-2 rounded-lg text-sm font-semibold transition-all hover:scale-[1.05]"
+                          style={{
+                            backgroundColor: COLORS.highlight,
+                            color: COLORS.background,
+                          }}
+                        >
+                          Enroll
+                        </button>
+                      ) : (
+                        <span
+                          className="px-4 py-2 rounded-lg text-sm font-medium"
+                          style={{
+                            backgroundColor: COLORS.border,
+                            color: COLORS.textLight,
+                          }}
+                        >
+                          Enrollment Closed
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+
+        {/* 📨 Message */}
         {message && (
-          <div className="mt-4 text-green-700 font-bold text-center">
+          <div
+            className="mt-8 text-center font-semibold py-4 px-6 rounded-2xl transition-all"
+            style={{
+              backgroundColor:
+                message.includes("✅") || message.includes("Enrolled")
+                  ? COLORS.success
+                  : COLORS.highlight,
+              color: COLORS.background,
+              boxShadow: `0 4px 10px ${COLORS.shadow}`,
+            }}
+          >
             {message}
           </div>
         )}
       </div>
-      
     </div>
   );
 };
 
-export default home;
+export default Home;

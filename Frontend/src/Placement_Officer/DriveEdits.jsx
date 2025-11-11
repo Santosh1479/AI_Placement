@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import { COLORS } from '../constants/colors';
 
 const API_URL = "http://localhost:5000/drives";
 const roundsOrder = [
@@ -120,28 +121,48 @@ const DriveEdits = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-indigo-100 p-8">
-      <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-6">
-        <h2 className="text-2xl font-bold text-indigo-700 mb-4">
+    <div 
+      className="min-h-screen p-8"
+      style={{ 
+        background: `linear-gradient(to bottom right, ${COLORS.background}, ${COLORS.secondary})` 
+      }}
+    >
+      <div 
+        className="max-w-4xl mx-auto rounded-xl shadow-lg p-6"
+        style={{ 
+          backgroundColor: COLORS.card,
+          boxShadow: `0 4px 6px ${COLORS.shadow}`,
+          border: `1px solid ${COLORS.border}`
+        }}
+      >
+        <h2 
+          className="text-2xl font-bold mb-4"
+          style={{ color: COLORS.primary }}
+        >
           Edit Drive:{" "}
-          <span className="text-indigo-900">{drive.companyName}</span>{" "}
-          <span className="text-xs text-gray-400">({drive._id})</span>
+          <span style={{ color: COLORS.text }}>{drive.companyName}</span>{" "}
+          <span style={{ color: COLORS.textLight }}>({drive._id})</span>
         </h2>
+
         <div className="mb-6">
-          <div className="text-lg font-semibold text-indigo-600">
+          <div 
+            className="text-lg font-semibold"
+            style={{ color: COLORS.primary }}
+          >
             Current Round:{" "}
-            <span className="text-indigo-900">
+            <span style={{ color: COLORS.text }}>
               {roundLabels[currentRound] || currentRound}
             </span>
           </div>
-          <div className="text-gray-700 mt-2">
+
+          <div style={{ color: COLORS.text }} className="mt-2">
             <strong>
               {currentRound === "appointed"
                 ? "Appointed Students:"
                 : "Applied Students:"}
             </strong>
             {appliedUSNs.length === 0 ? (
-              <div className="text-gray-400 mt-2">
+              <div style={{ color: COLORS.textLight }} className="mt-2">
                 No students{" "}
                 {currentRound === "appointed" ? "appointed" : "have applied"} yet.
               </div>
@@ -149,7 +170,7 @@ const DriveEdits = () => {
               <ul className="mt-2 space-y-2">
                 {appliedUSNs.map((usn) => (
                   <li key={usn} className="flex items-center gap-3">
-                    <span className="font-mono text-indigo-800">{usn}</span>
+                    <span style={{ color: COLORS.primary }}>{usn}</span>
                   </li>
                 ))}
               </ul>
@@ -157,17 +178,33 @@ const DriveEdits = () => {
           </div>
         </div>
 
-        {/* Add this section to show selection stats */}
+        {/* Stats Section */}
         <div className="mt-4 grid grid-cols-2 gap-4">
-          <div className="bg-green-50 p-4 rounded-lg">
-            <h3 className="font-semibold text-green-700">Selected</h3>
-            <p className="text-2xl font-bold text-green-600">
+          <div 
+            className="p-4 rounded-lg"
+            style={{ 
+              backgroundColor: `${COLORS.success}15`,
+              border: `1px solid ${COLORS.success}30`
+            }}
+          >
+            <h3 style={{ color: COLORS.success }} className="font-semibold">
+              Selected
+            </h3>
+            <p style={{ color: COLORS.success }} className="text-2xl font-bold">
               {stats.numStudentsSelected}
             </p>
           </div>
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <h3 className="font-semibold text-blue-700">Remaining</h3>
-            <p className="text-2xl font-bold text-blue-600">
+          <div 
+            className="p-4 rounded-lg"
+            style={{ 
+              backgroundColor: `${COLORS.primary}15`,
+              border: `1px solid ${COLORS.primary}30`
+            }}
+          >
+            <h3 style={{ color: COLORS.primary }} className="font-semibold">
+              Remaining
+            </h3>
+            <p style={{ color: COLORS.primary }} className="text-2xl font-bold">
               {stats.numRequired}
             </p>
           </div>
@@ -176,26 +213,49 @@ const DriveEdits = () => {
         {currentRound !== "appointed" && (
           <>
             <button
-              className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition w-full"
+              className="px-6 py-2 rounded-lg font-semibold transition w-full mt-4"
+              style={{ 
+                backgroundColor: COLORS.primary,
+                color: COLORS.white,
+                opacity: appliedUSNs.length === 0 ? 0.5 : 1
+              }}
               onClick={() => setShowSelection(true)}
               disabled={appliedUSNs.length === 0}
             >
               Next Stage
             </button>
+
             {showSelection && (
-              <div className="mt-6 bg-indigo-50 rounded-xl p-4 shadow">
-                <h3 className="font-bold mb-2 text-indigo-700">
+              <div 
+                className="mt-6 rounded-xl p-4"
+                style={{ 
+                  backgroundColor: `${COLORS.primary}10`,
+                  border: `1px solid ${COLORS.primary}30`
+                }}
+              >
+                <h3 
+                  className="font-bold mb-2"
+                  style={{ color: COLORS.primary }}
+                >
                   Confirm moving selected students to next round?
                 </h3>
                 <div className="flex gap-4">
                   <button
-                    className="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition"
+                    className="px-4 py-2 rounded-lg font-semibold transition"
+                    style={{ 
+                      backgroundColor: COLORS.success,
+                      color: COLORS.white
+                    }}
                     onClick={handleNextStage}
                   >
                     Confirm
                   </button>
                   <button
-                    className="bg-gray-400 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-500 transition"
+                    className="px-4 py-2 rounded-lg font-semibold transition"
+                    style={{ 
+                      backgroundColor: COLORS.textLight,
+                      color: COLORS.white
+                    }}
                     onClick={() => setShowSelection(false)}
                   >
                     Cancel
@@ -203,48 +263,45 @@ const DriveEdits = () => {
                 </div>
               </div>
             )}
+
             <div className="mt-8">
-              <strong>Selection Panel:</strong>
+              <strong style={{ color: COLORS.text }}>Selection Panel:</strong>
               <ul className="mt-2 space-y-2">
                 {selectableUSNs.map((usn) => (
                   <li key={usn} className="flex items-center gap-3">
-                    <span className="font-mono text-indigo-800">{usn}</span>
+                    <span style={{ color: COLORS.primary }}>{usn}</span>
                     <button
                       style={{
                         background: selectedUSNs.includes(usn)
-                          ? "green"
-                          : "#e5e7eb",
+                          ? COLORS.success
+                          : COLORS.background,
                         borderRadius: "50%",
                         width: 24,
                         height: 24,
-                        border: "2px solid #22c55e",
+                        border: `2px solid ${COLORS.success}`
                       }}
                       onClick={() => handleSelect(usn)}
                       title="Select"
                     >
                       {selectedUSNs.includes(usn) && (
-                        <span style={{ color: "white", fontWeight: "bold" }}>
-                          ✓
-                        </span>
+                        <span style={{ color: COLORS.white }}>✓</span>
                       )}
                     </button>
                     <button
                       style={{
                         background: rejectedUSNs.includes(usn)
-                          ? "red"
-                          : "#e5e7eb",
+                          ? COLORS.expense
+                          : COLORS.background,
                         borderRadius: "50%",
                         width: 24,
                         height: 24,
-                        border: "2px solid #ef4444",
+                        border: `2px solid ${COLORS.expense}`
                       }}
                       onClick={() => handleReject(usn)}
                       title="Reject"
                     >
                       {rejectedUSNs.includes(usn) && (
-                        <span style={{ color: "white", fontWeight: "bold" }}>
-                          ✗
-                        </span>
+                        <span style={{ color: COLORS.white }}>✗</span>
                       )}
                     </button>
                   </li>
