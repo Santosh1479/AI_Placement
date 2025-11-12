@@ -5,7 +5,7 @@ import { loginUser } from "./lib/api";
 
 const Login = () => {
   const [role, setRole] = useState("students");
-  const [email, setEmail] = useState("test@test.com");
+  const [email, setEmail] = useState("red1442019@gmail.com");
   const [password, setPassword] = useState("testpass");
   const navigate = useNavigate();
 
