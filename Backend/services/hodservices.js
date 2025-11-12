@@ -21,23 +21,26 @@ exports.register = async (data) => {
   return await hod.save();
 };
 exports.login = async (email, password) => {
-    const hod = await HOD.findOne({ email }).select("+password");
-    if (!hod) throw new Error("Invalid credentials");
-    const isMatch = await hod.comparePassword(password);
-    if (!isMatch) throw new Error("Invalid credentials");
-    return hod;
+  const hod = await HOD.findOne({ email }).select("+password");
+  if (!hod) throw new Error("Invalid credentials");
+  const isMatch = await hod.comparePassword(password);
+  if (!isMatch) throw new Error("Invalid credentials");
+  return hod;
 };
 
 exports.approveStudent = async (studentId) => {
-    return await Student.findByIdAndUpdate(studentId, { approval: "approved" }, { new: true });
+  return await Student.findByIdAndUpdate(studentId, { approval: "approved" }, { new: true });
 };
 
 exports.editStudentProfile = async (studentId, data) => {
-    return await Student.findByIdAndUpdate(studentId, data, { new: true });
+  // Allow GPA edit
+  const updateFields = { ...data };
+  if (data.gpa !== undefined) updateFields.gpa = data.gpa;
+  return await Student.findByIdAndUpdate(studentId, updateFields, { new: true });
 };
 
 exports.getHodProfile = async (hodId) => {
-    const hod = await HOD.findById(hodId);
-    if (!hod) throw new Error("HOD not found");
-    return hod;
+  const hod = await HOD.findById(hodId);
+  if (!hod) throw new Error("HOD not found");
+  return hod;
 };

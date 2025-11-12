@@ -4,6 +4,7 @@ const Student = require("../models/Student");
 exports.register = async (req, res) => {
     try {
         req.body.password = await Student.hashPassword(req.body.password);
+        console.log("Register req.body:", req.body); // <-- Add this line
         const student = new Student(req.body);
         await student.save();
         const token = student.generateAuthToken();
@@ -38,7 +39,10 @@ exports.getProfile = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
     try {
-        const updated = await Student.findByIdAndUpdate(req.user._id, req.body, { new: true });
+        const updateFields = { ...req.body };
+        // Only allow GPA update if present
+        if (req.body.gpa !== undefined) updateFields.gpa = req.body.gpa;
+        const updated = await Student.findByIdAndUpdate(req.user._id, updateFields, { new: true });
         res.json(updated);
     } catch (err) {
         res.status(400).json({ error: err.message });
@@ -63,6 +67,7 @@ exports.updateStudentByUsn = async (req, res) => {
         if (req.body.department) updateFields.department = req.body.department;
         if (req.body.placed !== undefined) updateFields.placed = req.body.placed;
         if (req.body.lpa !== undefined) updateFields.lpa = req.body.lpa;
+        if (req.body.gpa !== undefined) updateFields.gpa = req.body.gpa;
 
         const student = await Student.findOneAndUpdate(
             { usn },
@@ -80,17 +85,17 @@ exports.updateStudentByUsn = async (req, res) => {
 exports.calculateAtsScore = async (req, res) => {
     try {
         const { resumeText, jobDescription } = req.body;
-        
+
         if (!resumeText) {
             return res.status(400).json({ error: "Resume text is required" });
         }
 
         const result = await studentService.analyzeResume(resumeText, jobDescription);
-        
+
         if (!result.success) {
-            return res.status(500).json({ 
+            return res.status(500).json({
                 error: "Failed to analyze resume",
-                details: result.error 
+                details: result.error
             });
         }
 
@@ -103,14 +108,14 @@ exports.calculateAtsScore = async (req, res) => {
         });
     } catch (err) {
         console.error("[studentController] calculateAtsScore error:", err);
-        res.status(500).json({ 
+        res.status(500).json({
             error: "Failed to calculate ATS score",
-            details: err.message 
+            details: err.message
         });
     }
 };
 
-exports.getAtsScore = async (req, res) => { 
+exports.getAtsScore = async (req, res) => {
     try {
         const student = await Student.findById(req.user._id);
         if (!student) return res.status(404).json({ error: "Student not found" });

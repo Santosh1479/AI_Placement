@@ -52,6 +52,12 @@ const studentSchema = new mongoose.Schema({
     ats_score: {
         type: Number,
         default: 0
+    },
+    gpa: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 10
     }
 });
 

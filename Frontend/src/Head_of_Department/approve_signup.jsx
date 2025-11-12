@@ -17,6 +17,7 @@ const ApproveSignup = () => {
         },
       })
       .then((res) => {
+        console.log(res.data);
         const pending = res.data.filter(
           (s) => s.department === hodDepartment && s.approval === "inprogress"
         );
@@ -83,10 +84,21 @@ const ApproveSignup = () => {
             <table className="w-full border-separate border-spacing-y-3">
               <thead>
                 <tr style={{ color: COLORS.textLight, textAlign: "left" }}>
-                  <th className="px-4 py-2 text-sm uppercase tracking-wide">Name</th>
-                  <th className="px-4 py-2 text-sm uppercase tracking-wide">USN</th>
-                  <th className="px-4 py-2 text-sm uppercase tracking-wide">Branch</th>
-                  <th className="px-4 py-2 text-sm uppercase tracking-wide text-right">Action</th>
+                  <th className="px-4 py-2 text-sm uppercase tracking-wide">
+                    Name
+                  </th>
+                  <th className="px-4 py-2 text-sm uppercase tracking-wide">
+                    USN
+                  </th>
+                  <th className="px-4 py-2 text-sm uppercase tracking-wide">
+                    Branch
+                  </th>
+                  <th className="px-4 py-2 text-sm uppercase tracking-wide">
+                    GPA
+                  </th>
+                  <th className="px-4 py-2 text-sm uppercase tracking-wide text-right">
+                    Action
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -116,6 +128,12 @@ const ApproveSignup = () => {
                       style={{ color: COLORS.text }}
                     >
                       {student.department}
+                    </td>
+                    <td
+                      className="px-4 py-3 font-medium"
+                      style={{ color: COLORS.text }}
+                    >
+                      {student.gpa ?? 0}
                     </td>
                     <td className="px-4 py-3 text-right">
                       <button

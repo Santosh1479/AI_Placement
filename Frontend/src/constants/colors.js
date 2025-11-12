@@ -2,19 +2,19 @@
 // 🎨 Professional, distinct themes with light + dark variants
 
 export const THEMES = {
-// 🌙 Base structure reference palette (your provided professional set)
-  default:{
-     background: "#312C51",   // Deep navy-purple background
-  primary: "#48426D",      // Card / container background
-  accent: "#F0C38E",       // Warm highlight (used for buttons, emphasis)
-  highlight: "#F1AA9B",    // Soft peach-pink for highlights
-  text: "#FFFFFF",         // Main white text
-  textLight: "#E6E6E6",    // Slightly muted white
-  card: "#3A345C",         // Inner card background (a bit lighter than background)
-  border: "#5A5480",       // Subtle border
-  success: "#A4D96C",      // Calm green for success states
-  expense: "#F87171",      // Soft red for warnings
-  shadow: "rgba(0, 0, 0, 0.3)", // Consistent shadow for depth
+  // 🌙 Base structure reference palette (your provided professional set)
+  default: {
+    background: "#312C51",   // Deep navy-purple background
+    primary: "#48426D",      // Card / container background
+    accent: "#F0C38E",       // Warm highlight (used for buttons, emphasis)
+    highlight: "#F1AA9B",    // Soft peach-pink for highlights
+    text: "#FFFFFF",         // Main white text
+    textLight: "#E6E6E6",    // Slightly muted white
+    card: "#3A345C",         // Inner card background (a bit lighter than background)
+    border: "#5A5480",       // Subtle border
+    success: "#A4D96C",      // Calm green for success states
+    expense: "#F87171",      // Soft red for warnings
+    shadow: "rgba(0, 0, 0, 0.3)", // Consistent shadow for depth
 
   },
   // 🌙 1. Midnight Plum – Elegant dark professional base
@@ -123,31 +123,31 @@ export const THEMES = {
   },
 
   autumn: {
-  background: "#2B1C10",    // Deep warm brown base
-  primary: "#3E2615",       // Slightly lighter container
-  accent: "#E99331",        // Vibrant orange accent
-  highlight: "#F5B25E",     // Lighter highlight tone
-  text: "#FFFFFF",          // Main white text
-  textLight: "#E6D6C8",     // Muted warm white
-  card: "#4B2F1B",          // Card tone slightly lifted
-  border: "#5C3A25",        // Subtle brown border
-  success: "#A4D96C",       // Balanced green
-  expense: "#F87171",       // Soft red for alerts
-  shadow: "rgba(0, 0, 0, 0.35)", // Deep warm shadow
-},
-royalrose: {
-  background: "#2A102D",    // Deep maroon-purple backdrop
-  primary: "#3A1840",       // Main container tone
-  accent: "#FFC03D",        // Warm golden-orange accent
-  highlight: "#FF6B6B",     // Bright red highlight
-  text: "#E7EEFB",          // Very light text
-  textLight: "#C8C0D8",     // Muted lavender-gray
-  card: "#432344",          // Card slightly lifted from background
-  border: "#5B3A5E",        // Purple-gray border
-  success: "#B0E7A1",       // Gentle green
-  expense: "#FF2525",       // Red warning color
-  shadow: "rgba(0, 0, 0, 0.4)", // Deep purple-toned shadow
-},
+    background: "#2B1C10",    // Deep warm brown base
+    primary: "#3E2615",       // Slightly lighter container
+    accent: "#E99331",        // Vibrant orange accent
+    highlight: "#F5B25E",     // Lighter highlight tone
+    text: "#FFFFFF",          // Main white text
+    textLight: "#E6D6C8",     // Muted warm white
+    card: "#4B2F1B",          // Card tone slightly lifted
+    border: "#5C3A25",        // Subtle brown border
+    success: "#A4D96C",       // Balanced green
+    expense: "#F87171",       // Soft red for alerts
+    shadow: "rgba(0, 0, 0, 0.35)", // Deep warm shadow
+  },
+  royalrose: {
+    background: "#2A102D",    // Deep maroon-purple backdrop
+    primary: "#3A1840",       // Main container tone
+    accent: "#FFC03D",        // Warm golden-orange accent
+    highlight: "#FF6B6B",     // Bright red highlight
+    text: "#E7EEFB",          // Very light text
+    textLight: "#C8C0D8",     // Muted lavender-gray
+    card: "#432344",          // Card slightly lifted from background
+    border: "#5B3A5E",        // Purple-gray border
+    success: "#B0E7A1",       // Gentle green
+    expense: "#FF2525",       // Red warning color
+    shadow: "rgba(0, 0, 0, 0.4)", // Deep purple-toned shadow
+  },
 
 };
 

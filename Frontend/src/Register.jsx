@@ -10,6 +10,7 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [usn, setUsn] = useState("");
   const [department, setDepartment] = useState("");
+  const [GPA, setGPA] = useState("");
   const [skills, setSkills] = useState("");
   const navigate = useNavigate();
 
@@ -18,16 +19,21 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    try {
-      const data = {
-        name,
-        email,
-        password,
-        ...(role === "students" && { usn, department, skills: skills.split(",") }),
-        ...(role === "hods" && { department }),
-        ...(role === "placeofficers" && {}),
-      };
+    const data = {
+      name,
+      email,
+      password,
+      ...(role === "students" && {
+        usn,
+        department,
+        skills: skills.split(","),
+        gpa: parseFloat(GPA),
+      }),
+      ...(role === "hods" && { department }),
+      ...(role === "placeofficers" && {}),
+    };
 
+    try {
       const response = await registerUser(
         data.name,
         data.email,
@@ -106,7 +112,10 @@ const Register = () => {
         {/* 🧾 Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: COLORS.text }}>
+            <label
+              className="block text-sm font-medium mb-2"
+              style={{ color: COLORS.text }}
+            >
               Full Name
             </label>
             <input
@@ -125,7 +134,10 @@ const Register = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: COLORS.text }}>
+            <label
+              className="block text-sm font-medium mb-2"
+              style={{ color: COLORS.text }}
+            >
               Email
             </label>
             <input
@@ -144,7 +156,10 @@ const Register = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: COLORS.text }}>
+            <label
+              className="block text-sm font-medium mb-2"
+              style={{ color: COLORS.text }}
+            >
               Password
             </label>
             <input
@@ -166,7 +181,10 @@ const Register = () => {
           {role === "students" && (
             <>
               <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: COLORS.text }}>
+                <label
+                  className="block text-sm font-medium mb-2"
+                  style={{ color: COLORS.text }}
+                >
                   USN
                 </label>
                 <input
@@ -185,7 +203,10 @@ const Register = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: COLORS.text }}>
+                <label
+                  className="block text-sm font-medium mb-2"
+                  style={{ color: COLORS.text }}
+                >
                   Department
                 </label>
                 <input
@@ -202,9 +223,32 @@ const Register = () => {
                   required
                 />
               </div>
-
               <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: COLORS.text }}>
+                <label
+                  className="block text-sm font-medium mb-2"
+                  style={{ color: COLORS.text }}
+                >
+                  GPA
+                </label>
+                <input
+                  type="text"
+                  value={GPA}
+                  onChange={(e) => setGPA(e.target.value)}
+                  className="w-full rounded-xl p-3 transition duration-200"
+                  style={{
+                    border: `1px solid ${COLORS.border}`,
+                    backgroundColor: COLORS.card,
+                    color: COLORS.text,
+                  }}
+                  placeholder="Enter your GPA"
+                  required
+                />
+              </div>
+              <div>
+                <label
+                  className="block text-sm font-medium mb-2"
+                  style={{ color: COLORS.text }}
+                >
                   Skills (comma-separated)
                 </label>
                 <input
@@ -226,7 +270,10 @@ const Register = () => {
 
           {role === "hods" && (
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: COLORS.text }}>
+              <label
+                className="block text-sm font-medium mb-2"
+                style={{ color: COLORS.text }}
+              >
                 Department
               </label>
               <input
@@ -247,7 +294,10 @@ const Register = () => {
 
           {/* 🧭 Role Selector */}
           <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: COLORS.text }}>
+            <label
+              className="block text-sm font-medium mb-2"
+              style={{ color: COLORS.text }}
+            >
               Role
             </label>
             <select
@@ -256,7 +306,7 @@ const Register = () => {
               className="w-full rounded-xl p-3 transition duration-200 cursor-pointer"
               style={{
                 border: `1px solid ${COLORS.border}`,
-               backgroundColor: COLORS.card,
+                backgroundColor: COLORS.card,
                 color: COLORS.text,
               }}
             >

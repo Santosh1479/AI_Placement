@@ -40,7 +40,7 @@ export const registerUser = async (name, email, password, role, additionalData =
 
     // Ensure role is lowercase for consistency
     const normalizedRole = role.toLowerCase();
-    
+
     // Construct the endpoint
     const endpoint = `${API_BASE_URL}/${normalizedRole}/register`;
 
@@ -53,6 +53,7 @@ export const registerUser = async (name, email, password, role, additionalData =
         usn: additionalData.usn,
         department: additionalData.department,
         skills: additionalData.skills,
+        gpa: additionalData.gpa,
       }),
       ...(normalizedRole === 'hods' && {
         department: additionalData.department,
@@ -100,7 +101,7 @@ export const calculateAtsScore = async (resumeText) => {
 
     // console.log('[API] Raw response:', response);
     // console.log('[API] Response data:', response.data);
-    
+
     // Return the response data directly
     return response.data;
   } catch (error) {
@@ -109,7 +110,7 @@ export const calculateAtsScore = async (resumeText) => {
       response: error.response?.data,
       status: error.response?.status
     }
-  );
+    );
     throw new Error(error.response?.data?.message || 'An error occurred while calculating ATS score');
   }
 };
