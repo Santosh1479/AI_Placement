@@ -1,10 +1,10 @@
-import React from 'react';
-import { COLORS } from './constants/colors';
+import React from "react";
+import { COLORS } from "./constants/colors";
 
 const Index = () => {
   const handleGetStarted = () => {
     // Navigate to the login page with the default role as Student
-    window.location.href = '/login?role=Student';
+    window.location.href = "/login?role=Student";
   };
 
   return (
@@ -21,7 +21,7 @@ const Index = () => {
       >
         <h1
           className="text-3xl font-bold mb-4"
-          style={{ color: COLORS.primary }}
+          style={{ color: COLORS.highlight }}
         >
           AI_Placement
         </h1>
@@ -35,7 +35,7 @@ const Index = () => {
           style={{
             backgroundColor: COLORS.primary,
             color: COLORS.white,
-            border: `1px solid ${COLORS.border || 'transparent'}`,
+            border: `1px solid ${COLORS.border || "transparent"}`,
           }}
         >
           Get Started
