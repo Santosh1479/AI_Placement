@@ -5,7 +5,7 @@
 /* Custom styles can be added below this line */
 
 body {
-  @apply bg-white text-black;
+  @apply antialiased text-black bg-white;
 }
 
 h1, h2, h3, h4, h5, h6 {

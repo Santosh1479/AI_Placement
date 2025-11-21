@@ -6,7 +6,12 @@
 
 body {
   font-family: 'Poppins', sans-serif;
-  @apply antialiased;
+  @apply antialiased text-gray-900 bg-white; /* Ensures dark text on light background */
+}
+
+/* If you use custom containers, add: */
+.main-container, .card, .rounded-2xl, .p-8 {
+  color: #222 !important;
 }
 
 /* Custom animations */

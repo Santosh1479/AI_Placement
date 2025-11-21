@@ -5,13 +5,14 @@ import Topbar from "../components/topbar";
 
 const StudProfEdit = () => {
   const [usn, setUsn] = useState("");
-  const [student, setStudent] = useState(null);
+  const [student, setStudent] = useState("1ai23cs001");
   const [editData, setEditData] = useState({
     name: "",
     department: "",
     email: "",
     placed: false,
     lpa: 0,
+    gpa: 0, // Add GPA field
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -26,7 +27,9 @@ const StudProfEdit = () => {
     setError("");
     try {
       const res = await axios.get("http://localhost:5000/students/");
-      const found = res.data.find((s) => s.usn.toLowerCase() === usn.toLowerCase());
+      const found = res.data.find(
+        (s) => s.usn.toLowerCase() === usn.toLowerCase()
+      );
       if (found) {
         setStudent(found);
         setEditData({
@@ -35,6 +38,7 @@ const StudProfEdit = () => {
           email: found.email,
           placed: found.placed,
           lpa: found.lpa,
+          gpa: found.gpa, // Add GPA
         });
       } else {
         setStudent(null);
@@ -77,25 +81,26 @@ const StudProfEdit = () => {
       <Topbar name="HOD" />
 
       <div
-        className="max-w-xl mx-auto rounded-2xl shadow-lg p-8 mt-10"
+        className="max-w-xl mx-auto rounded-3xl shadow-2xl p-8 mt-10"
         style={{
-          backgroundColor: COLORS.card,
-          boxShadow: `0 6px 12px ${COLORS.shadow}`,
-          transition: "all 0.3s ease-in-out",
+          backgroundColor: COLORS.primary,
+          boxShadow: `0 2px 2px ${COLORS.highlight}`,
+          border: `2px solid ${COLORS.accent}`,
+          transition: "all 0.3s cubic-bezier(0.4,0,0.2,1)",
         }}
       >
         <h1
-          className="text-2xl font-extrabold mb-6 text-center"
-          style={{ color: COLORS.text }}
+          className="text-2xl font-extrabold mb-8 text-center uppercase tracking-wide"
+          style={{ color: COLORS.highlight, letterSpacing: "2px" }}
         >
           Edit Student Profile
         </h1>
 
         {/* Search Section */}
-        <div className="mb-6">
+        <div className="mb-8">
           <label
             className="block font-semibold mb-2"
-            style={{ color: COLORS.text }}
+            style={{ color: COLORS.textLight }}
           >
             Enter Student USN
           </label>
@@ -104,22 +109,24 @@ const StudProfEdit = () => {
               type="text"
               value={usn}
               onChange={(e) => setUsn(e.target.value)}
-              className="px-4 py-2 rounded-lg w-full outline-none focus:ring-2"
+              className="px-4 py-2 rounded-lg w-full outline-none focus:ring-2 transition-all"
               style={{
                 backgroundColor: COLORS.secondary,
-                border: `1px solid ${COLORS.border}`,
-                color: COLORS.text,
-                transition: "0.2s",
+                border: `1.5px solid ${COLORS.highlight}`,
+                color: "#6B7280",
+                fontWeight: 500,
+                fontSize: "1rem",
               }}
               placeholder="e.g. 1AI20CS001"
             />
             <button
               onClick={handleSearch}
               disabled={loading}
-              className="px-4 py-2 rounded-lg font-semibold transition transform hover:scale-105 disabled:opacity-50"
+              className="px-5 py-2 rounded-lg font-semibold transition-all hover:scale-105 disabled:opacity-50"
               style={{
-                backgroundColor: COLORS.primary,
-                color: COLORS.text,
+                backgroundColor: COLORS.highlight,
+                color: COLORS.background,
+                boxShadow: `0 2px 8px ${COLORS.accent}`,
               }}
             >
               {loading ? "Loading..." : "Load"}
@@ -127,7 +134,7 @@ const StudProfEdit = () => {
           </div>
           {error && (
             <div
-              style={{ color: COLORS.expense }}
+              style={{ color: COLORS.highlight }}
               className="mt-3 text-sm font-medium"
             >
               {error}
@@ -137,11 +144,11 @@ const StudProfEdit = () => {
 
         {/* Editable Form */}
         {student && (
-          <form className="space-y-5 transition-all duration-300">
+          <form className="space-y-6 transition-all duration-300">
             <div>
               <label
                 className="block font-medium mb-1"
-                style={{ color: COLORS.text }}
+                style={{ color: "COLORS.textLight" }}
               >
                 Name
               </label>
@@ -150,11 +157,12 @@ const StudProfEdit = () => {
                 name="name"
                 value={editData.name}
                 onChange={handleChange}
-                className="px-4 py-2 rounded-lg w-full focus:ring-2 outline-none"
+                className="px-4 py-2 rounded-lg w-full focus:ring-2 outline-none transition-all"
                 style={{
                   backgroundColor: COLORS.secondary,
-                  border: `1px solid ${COLORS.border}`,
-                  color: COLORS.text,
+                  border: `1.5px solid ${COLORS.accent}`,
+                  color: "6B7280",
+                  fontWeight: 500,
                 }}
               />
             </div>
@@ -162,7 +170,7 @@ const StudProfEdit = () => {
             <div>
               <label
                 className="block font-medium mb-1"
-                style={{ color: COLORS.text }}
+                style={{ color: COLORS.textLight }}
               >
                 Department
               </label>
@@ -171,11 +179,12 @@ const StudProfEdit = () => {
                 name="department"
                 value={editData.department}
                 onChange={handleChange}
-                className="px-4 py-2 rounded-lg w-full focus:ring-2 outline-none"
+                className="px-4 py-2 rounded-lg w-full focus:ring-2 outline-none transition-all"
                 style={{
                   backgroundColor: COLORS.secondary,
-                  border: `1px solid ${COLORS.border}`,
-                  color: COLORS.text,
+                  border: `1.5px solid ${COLORS.accent}`,
+                  color: "6B7280",
+                  fontWeight: 500,
                 }}
               />
             </div>
@@ -183,7 +192,7 @@ const StudProfEdit = () => {
             <div>
               <label
                 className="block font-medium mb-1"
-                style={{ color: COLORS.text }}
+                style={{ color: COLORS.textLight }}
               >
                 Email
               </label>
@@ -192,11 +201,12 @@ const StudProfEdit = () => {
                 name="email"
                 value={editData.email}
                 onChange={handleChange}
-                className="px-4 py-2 rounded-lg w-full focus:ring-2 outline-none"
+                className="px-4 py-2 rounded-lg w-full focus:ring-2 outline-none transition-all"
                 style={{
                   backgroundColor: COLORS.secondary,
-                  border: `1px solid ${COLORS.border}`,
-                  color: COLORS.text,
+                  border: `1.5px solid ${COLORS.accent}`,
+                  color: "6B7280",
+                  fontWeight: 500,
                 }}
               />
             </div>
@@ -204,7 +214,7 @@ const StudProfEdit = () => {
             <div>
               <label
                 className="block font-medium mb-1"
-                style={{ color: COLORS.text }}
+                style={{ color: COLORS.textLight }}
               >
                 Placement Status
               </label>
@@ -213,7 +223,7 @@ const StudProfEdit = () => {
                   <label
                     key={option}
                     className="flex items-center cursor-pointer"
-                    style={{ color: COLORS.text }}
+                    style={{ color: "6B7280" }}
                   >
                     <input
                       type="radio"
@@ -223,7 +233,10 @@ const StudProfEdit = () => {
                       onChange={() =>
                         setEditData({ ...editData, placed: option === "Yes" })
                       }
-                      className="mr-2"
+                      className="mr-2 accent-highlight"
+                      style={{
+                        accentColor: COLORS.highlight,
+                      }}
                     />
                     {option}
                   </label>
@@ -234,7 +247,7 @@ const StudProfEdit = () => {
             <div>
               <label
                 className="block font-medium mb-1"
-                style={{ color: COLORS.text }}
+                style={{ color: COLORS.textLight }}
               >
                 LPA (if placed)
               </label>
@@ -245,13 +258,41 @@ const StudProfEdit = () => {
                 value={editData.lpa}
                 onChange={handleChange}
                 disabled={!editData.placed}
-                className="px-4 py-2 rounded-lg w-full focus:ring-2 outline-none disabled:opacity-50"
+                className="px-4 py-2 rounded-lg w-full focus:ring-2 outline-none disabled:opacity-50 transition-all"
                 style={{
                   backgroundColor: COLORS.secondary,
-                  border: `1px solid ${COLORS.border}`,
-                  color: COLORS.text,
+                  border: `1.5px solid ${COLORS.accent}`,
+                  color: "6B7280",
+                  fontWeight: 500,
+                  opacity: editData.placed ? 1 : 0.6,
                 }}
                 placeholder="e.g. 4.5"
+              />
+            </div>
+
+            <div>
+              <label
+                className="block font-medium mb-1"
+                style={{ color: COLORS.textLight }}
+              >
+                GPA
+              </label>
+              <input
+                type="number"
+                name="gpa"
+                step="0.01"
+                min="0"
+                max="10"
+                value={editData.gpa}
+                onChange={handleChange}
+                className="px-4 py-2 rounded-lg w-full focus:ring-2 outline-none transition-all"
+                style={{
+                  backgroundColor: COLORS.secondary,
+                  border: `1.5px solid ${COLORS.accent}`,
+                  color: "6B7280",
+                  fontWeight: 500,
+                }}
+                placeholder="e.g. 8.5"
               />
             </div>
 
@@ -259,10 +300,12 @@ const StudProfEdit = () => {
               type="button"
               onClick={handleSave}
               disabled={saving}
-              className="px-4 py-2 w-full rounded-lg font-semibold transition transform hover:scale-105 disabled:opacity-60"
+              className="px-6 py-3 w-full rounded-xl font-semibold transition-all hover:scale-105 disabled:opacity-60"
               style={{
-                backgroundColor: COLORS.success,
-                color: COLORS.card,
+                backgroundColor: COLORS.accent,
+                color: "6B7280",
+                boxShadow: `0 2px 8px ${COLORS.highlight}`,
+                letterSpacing: "1px",
               }}
             >
               {saving ? "Saving..." : "Save Changes"}

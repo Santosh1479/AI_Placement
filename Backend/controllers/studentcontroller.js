@@ -1,5 +1,7 @@
 const studentService = require("../services/studentservices");
 const Student = require("../models/Student");
+const pdfParse = require("pdf-parse");
+const mammoth = require("mammoth");
 
 exports.register = async (req, res) => {
     try {
@@ -81,14 +83,27 @@ exports.updateStudentByUsn = async (req, res) => {
     }
 };
 
-
 exports.calculateAtsScore = async (req, res) => {
     try {
-        const { resumeText, jobDescription } = req.body;
-
-        if (!resumeText) {
-            return res.status(400).json({ error: "Resume text is required" });
+        let resumeText = "";
+        if (req.file) {
+            if (req.file.mimetype === "application/pdf") {
+                const data = await pdfParse(req.file.buffer);
+                resumeText = data.text;
+            } else if (
+                req.file.mimetype === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            ) {
+                const result = await mammoth.extractRawText({ buffer: req.file.buffer });
+                resumeText = result.value;
+            } else {
+                return res.status(400).json({ error: "Unsupported file type" });
+            }
+        } else {
+            return res.status(400).json({ error: "Resume file is required" });
         }
+
+        // You can optionally get jobDescription from req.body if you want
+        const jobDescription = req.body.jobDescription || "";
 
         const result = await studentService.analyzeResume(resumeText, jobDescription);
 
@@ -99,7 +114,6 @@ exports.calculateAtsScore = async (req, res) => {
             });
         }
 
-        // Update the student's ATS score
         await studentService.updateAtsScore(req.user._id, result.data.total_score);
 
         res.json({
