@@ -6,7 +6,7 @@
 
 body {
   font-family: 'Poppins', sans-serif;
-  @apply antialiased text-gray-900 bg-white; /* Ensures dark text on light background */
+  @apply text-gray-900 bg-white; /* Ensures dark text on light background */
 }
 
 /* If you use custom containers, add: */
@@ -37,4 +37,8 @@ body {
 
 .hover-card:hover {
   @apply -translate-y-2 shadow-xl;
+}
+input::placeholder {
+  color: #000 !important;
+  opacity: 1;
 }

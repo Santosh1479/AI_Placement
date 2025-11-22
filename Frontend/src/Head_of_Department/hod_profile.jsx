@@ -15,11 +15,20 @@ import {
 import axios from "axios";
 import { COLORS } from "../constants/colors";
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  Tooltip,
+  Legend
+);
 
 const HOD_Profile = () => {
   const navigate = useNavigate();
-  const [displayName, setDisplayName] = useState(localStorage.getItem("name") || "HOD");
+  const [displayName, setDisplayName] = useState(
+    localStorage.getItem("name") || "HOD"
+  );
   const [students, setStudents] = useState([]);
   const [department, setDepartment] = useState("");
   const [stats, setStats] = useState({
@@ -49,13 +58,17 @@ const HOD_Profile = () => {
     axios
       .get("http://localhost:5000/students")
       .then((res) => {
-        const deptStudents = res.data.filter((s) => s.department === department);
+        const deptStudents = res.data.filter(
+          (s) => s.department === department
+        );
         setStudents(deptStudents);
 
         const placed = deptStudents.filter((s) => s.placed);
         const lpaList = placed.map((s) => s.lpa || 0);
         const total = deptStudents.length;
-        const avg = lpaList.length ? (lpaList.reduce((a, b) => a + b, 0) / lpaList.length).toFixed(2) : 0;
+        const avg = lpaList.length
+          ? (lpaList.reduce((a, b) => a + b, 0) / lpaList.length).toFixed(2)
+          : 0;
         const highest = lpaList.length ? Math.max(...lpaList) : 0;
 
         setStats({
@@ -80,7 +93,10 @@ const HOD_Profile = () => {
     const ws = XLSX.utils.json_to_sheet(excelData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Students");
-    XLSX.writeFile(wb, `${department}_Students_${new Date().toLocaleDateString()}.xlsx`);
+    XLSX.writeFile(
+      wb,
+      `${department}_Students_${new Date().toLocaleDateString()}.xlsx`
+    );
   };
 
   const barData = {
@@ -129,10 +145,22 @@ const HOD_Profile = () => {
         {/* Summary Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
           {[
-            { label: "Total", value: stats.totalStudents, color: COLORS.card },
+            {
+              label: "Total",
+              value: stats.totalStudents,
+              color: COLORS.accent,
+            },
             { label: "Placed", value: stats.placed, color: COLORS.success },
-            { label: "Unplaced", value: stats.unplaced, color: COLORS.highlight },
-            { label: "Avg. Package", value: `₹${stats.avgPackage}L`, color: COLORS.accent },
+            {
+              label: "Unplaced",
+              value: stats.unplaced,
+              color: COLORS.highlight,
+            },
+            {
+              label: "Avg. Package",
+              value: `₹${stats.avgPackage}L`,
+              color: COLORS.accent,
+            },
           ].map((item) => (
             <div
               key={item.label}
@@ -144,7 +172,10 @@ const HOD_Profile = () => {
               className="p-6 rounded-2xl text-center font-semibold hover:scale-105 transition-all duration-300"
             >
               <div className="text-3xl font-bold">{item.value}</div>
-              <div className="text-sm mt-1 uppercase tracking-wide" style={{ color: COLORS.textLight }}>
+              <div
+                className="text-sm mt-1 uppercase tracking-wide"
+                style={{ color: COLORS.textLight }}
+              >
                 {item.label}
               </div>
             </div>
@@ -158,7 +189,10 @@ const HOD_Profile = () => {
             style={{ backgroundColor: COLORS.card }}
           >
             <div className="flex justify-between items-center mb-3">
-              <h2 className="font-bold text-lg" style={{ color: COLORS.accent }}>
+              <h2
+                className="font-bold text-lg"
+                style={{ color: COLORS.accent }}
+              >
                 LPA Distribution
               </h2>
               <button
@@ -177,7 +211,10 @@ const HOD_Profile = () => {
               options={{
                 responsive: true,
                 plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true, ticks: { color: COLORS.textLight } }, x: { ticks: { color: COLORS.textLight } } },
+                scales: {
+                  y: { beginAtZero: true, ticks: { color: COLORS.textLight } },
+                  x: { ticks: { color: COLORS.textLight } },
+                },
               }}
             />
           </div>
@@ -186,14 +223,22 @@ const HOD_Profile = () => {
             className="rounded-2xl p-6 shadow-lg"
             style={{ backgroundColor: COLORS.card }}
           >
-            <h2 className="font-bold text-lg mb-3" style={{ color: COLORS.accent }}>
+            <h2
+              className="font-bold text-lg mb-3"
+              style={{ color: COLORS.accent }}
+            >
               Placement Ratio
             </h2>
             <Pie
               data={pieData}
               options={{
                 responsive: true,
-                plugins: { legend: { position: "bottom", labels: { color: COLORS.textLight } } },
+                plugins: {
+                  legend: {
+                    position: "bottom",
+                    labels: { color: COLORS.textLight },
+                  },
+                },
               }}
             />
           </div>

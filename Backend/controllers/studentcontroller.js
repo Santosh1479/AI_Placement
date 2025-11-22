@@ -71,8 +71,9 @@ exports.updateStudentByUsn = async (req, res) => {
         if (req.body.lpa !== undefined) updateFields.lpa = req.body.lpa;
         if (req.body.gpa !== undefined) updateFields.gpa = req.body.gpa;
 
+        // Use case-insensitive regex for USN comparison
         const student = await Student.findOneAndUpdate(
-            { usn },
+            { usn: new RegExp(`^${usn}$`, "i") },
             { $set: updateFields },
             { new: true }
         );

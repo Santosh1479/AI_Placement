@@ -12,9 +12,7 @@ const Topbar = ({ name, avatarUrl, children }) => {
     localStorage.getItem("role") ||
     "User";
 
-  const avatar =
-    avatarUrl ||
-    `https://avatar.iran.liara.run/public/44`;
+  const avatar = avatarUrl || `https://avatar.iran.liara.run/public/44`;
 
   const [unreadCount, setUnreadCount] = useState(
     Number(localStorage.getItem("unreadNotifications") || 0)
@@ -26,7 +24,9 @@ const Topbar = ({ name, avatarUrl, children }) => {
       setUnreadCount(Number(localStorage.getItem("unreadNotifications") || 0));
 
     const onCustom = (e) =>
-      setUnreadCount(Number(e?.detail ?? (localStorage.getItem("unreadNotifications") || 0)));
+      setUnreadCount(
+        Number(e?.detail ?? (localStorage.getItem("unreadNotifications") || 0))
+      );
 
     window.addEventListener("storage", onStorage);
     window.addEventListener("unreadCountChanged", onCustom);
@@ -40,8 +40,8 @@ const Topbar = ({ name, avatarUrl, children }) => {
   // ✅ Logout logic
   const handleLogout = () => {
     try {
-      ["token", "role", "name", "unreadNotifications"].forEach((key) =>
-        localStorage.removeItem(key)
+      ["token", "role", "name", "unreadNotifications", "approval"].forEach(
+        (key) => localStorage.removeItem(key)
       );
     } catch (err) {
       console.error("Logout error:", err);

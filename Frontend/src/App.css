@@ -5,7 +5,7 @@
 /* Custom styles can be added below this line */
 
 body {
-  @apply antialiased text-black bg-white;
+  @apply bg-white;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -25,5 +25,10 @@ button {
 }
 
 .text-secondary {
-  @apply text-gray-600; /* Example for secondary text color */
+  @apply text-red-600; /* Example for secondary text color */
+}
+
+input::placeholder {
+  color: #000 !important;
+  opacity: 1;
 }

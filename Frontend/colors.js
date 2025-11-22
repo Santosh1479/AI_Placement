@@ -4,6 +4,6 @@ export const COLORS = {
   background: '#FEFAE0', // Cream
   accent: '#FAEDCD',     // Light beige
   highlight: '#D4A373',  // Warm brown
-  text: '#000000',       // Dark blue-grey for text
+  text: '#F8F6F0',       // Dark blue-grey for text
   textLight: '#7F8C8D',  // Lighter text
 };

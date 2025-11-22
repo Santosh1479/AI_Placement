@@ -126,20 +126,20 @@ const Home = () => {
       />
 
       {/* 📄 Main Container */}
-      <div className="max-w-6xl mx-auto mt-8 mb-12 p-6">
+      <div className="max-w-6xl mx-auto mt-8  mb-12 p-6">
         {/* 🎯 Resume Score Card */}
         <div
-          className="rounded-2xl p-8 mb-8 text-center"
+          className="rounded-2xl p-8 mb-8  text-center"
           style={{
             background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.accent}20 100%)`,
             boxShadow: `0 8px 32px ${COLORS.shadow}`,
             border: `1px solid ${COLORS.border}`,
           }}
         >
-          <h1 className="text-3xl md:text-4xl font-bold mb-4 uppercase tracking-wide">
+          <h1 className="text-3xl md:text-4xl  text-white font-bold mb-4 uppercase tracking-wide">
             ATS Resume Analyzer
           </h1>
-          <p className="text-lg mb-8 opacity-90">
+          <p className="text-lg mb-8  text-white opacity-90">
             Get your resume score and improve your job application success
           </p>
 
@@ -186,7 +186,7 @@ const Home = () => {
                   backgroundColor: COLORS.card,
                 }}
               >
-                <h3 className="text-lg font-semibold mb-4">
+                <h3 className="text-lg  text-white font-semibold mb-4">
                   Update Your Resume Score
                 </h3>
 
@@ -201,7 +201,7 @@ const Home = () => {
                     type="file"
                     accept=".pdf,.doc,.docx"
                     onChange={handleResumeChange}
-                    className="hidden"
+                    className="hidden "
                   />
                   Choose Resume File
                 </label>
@@ -215,7 +215,7 @@ const Home = () => {
                 <button
                   onClick={handleResumeUpload}
                   disabled={uploading || !resumeFile}
-                  className="w-full px-4 py-3 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full px-4 py-3 rounded-lg font-semibold transition-all disabled:opacity-50  text-white disabled:cursor-not-allowed"
                   style={{
                     backgroundColor: resumeFile ? COLORS.accent : COLORS.border,
                     color: COLORS.background,
@@ -231,7 +231,7 @@ const Home = () => {
                   )}
                 </button>
 
-                <p className="text-xs text-center mt-3 opacity-75">
+                <p className="text-xs  text-white text-center mt-3 opacity-75">
                   Supported formats: PDF, DOC, DOCX
                 </p>
               </div>
@@ -250,7 +250,11 @@ const Home = () => {
           {filteredDrives.length === 0 ? (
             <div
               className="text-center p-8 rounded-2xl"
-              style={{ backgroundColor: COLORS.card }}
+              style={{
+                backgroundColor: COLORS.card,
+                boxShadow: `0 4px 12px ${COLORS.shadow}`,
+                color: COLORS.text,
+              }}
             >
               <p className="text-lg opacity-75">
                 No drives available at the moment.
@@ -280,6 +284,7 @@ const Home = () => {
                     className="p-6 rounded-2xl transition-all hover:scale-[1.01] group"
                     style={{
                       backgroundColor: COLORS.card,
+                      color: "#F8F6F0",
                       boxShadow: `0 4px 12px ${COLORS.shadow}`,
                       border: isEnrolled
                         ? `2px solid ${COLORS.success}`
@@ -308,7 +313,7 @@ const Home = () => {
                           )}
                         </div>
 
-                        <div className="space-y-2">
+                        <div className="space-y-2  text-white">
                           <div className="flex items-center gap-2">
                             <span className="font-semibold text-sm opacity-75">
                               Role:
